@@ -3,6 +3,7 @@ Allow: /
 Allow: /auth/sign-up
 Allow: /auth/login
 
+Disallow: /dashboard/
 Disallow: /protected/
 Disallow: /api/
 

@@ -10,7 +10,7 @@ export function CTASection() {
             Ready to Transform Your Financial Life?
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-blue-100 sm:mt-6 sm:text-lg sm:leading-8">
-            Join thousands of users who have already taken control of their finances with FinBot's 
+            Join thousands of users who have already taken control of their finances with FinBot&apos;s 
             intelligent money management platform.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:mt-10 sm:flex-row sm:gap-6">

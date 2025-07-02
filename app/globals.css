@@ -116,12 +116,53 @@
   * {
     @apply border-border outline-ring/50;
   }
-  
+
   html {
     scroll-behavior: smooth;
   }
-  
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* TipTap Editor Styles */
+.prose {
+  @apply text-foreground;
+}
+
+.prose h1 {
+  @apply text-xl font-semibold mb-2;
+}
+
+.prose h2 {
+  @apply text-lg font-semibold mb-2;
+}
+
+.prose h3 {
+  @apply text-base font-semibold mb-1;
+}
+
+.prose p {
+  @apply mb-2;
+}
+
+.prose ul, .prose ol {
+  @apply mb-2 ml-4;
+}
+
+.prose li {
+  @apply mb-0;
+}
+
+.prose a {
+  @apply text-blue-600 underline hover:text-blue-800;
+}
+
+.prose strong {
+  @apply font-semibold;
+}
+
+.prose em {
+  @apply italic;
 }

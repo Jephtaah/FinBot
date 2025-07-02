@@ -1,0 +1,269 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { DatePicker } from '@/components/ui/date-picker'
+import { RichTextEditor } from '@/components/ui/rich-text-editor'
+import { createTransaction, updateTransaction } from '@/lib/actions/transactions'
+import { createTransactionSchema, updateTransactionSchema, type CreateTransactionData, type UpdateTransactionData } from '@/lib/validations/transaction'
+import type { Transaction } from '@/types'
+import { toast } from 'sonner'
+
+interface TransactionFormProps {
+  transaction?: Transaction
+  mode: 'create' | 'edit'
+}
+
+const CATEGORIES = [
+  'Food & Dining',
+  'Transportation',
+  'Shopping',
+  'Entertainment',
+  'Bills & Utilities',
+  'Healthcare',
+  'Education',
+  'Travel',
+  'Groceries',
+  'Gas & Fuel',
+  'Home & Garden',
+  'Personal Care',
+  'Gifts & Donations',
+  'Business',
+  'Investment',
+  'Other'
+]
+
+const TRANSACTION_TYPES = [
+  { value: 'income', label: 'Income' },
+  { value: 'expense', label: 'Expense' }
+]
+
+export function TransactionForm({ transaction, mode }: TransactionFormProps) {
+  const router = useRouter()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const schema = mode === 'create' ? createTransactionSchema : updateTransactionSchema
+  
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<CreateTransactionData | UpdateTransactionData>({
+    resolver: zodResolver(schema),
+    defaultValues: transaction ? {
+      title: transaction.title,
+      type: transaction.type,
+      amount: transaction.amount,
+      category: transaction.category,
+      date: transaction.date,
+      notes: transaction.notes || {},
+      receipt_url: transaction.receipt_url || undefined,
+    } : {
+      type: 'expense',
+      date: new Date().toISOString().split('T')[0],
+      notes: {},
+    }
+  })
+
+  const watchedType = watch('type')
+  const watchedNotes = watch('notes')
+  const watchedDate = watch('date')
+
+  const onSubmit = async (data: CreateTransactionData | UpdateTransactionData) => {
+    setIsSubmitting(true)
+    
+    try {
+      let result
+      
+      if (mode === 'create') {
+        result = await createTransaction(data as CreateTransactionData)
+        
+        if (result.success) {
+          toast.success('Transaction created successfully!', {
+            description: `${data.type === 'income' ? 'Income' : 'Expense'} of $${data.amount} has been added.`
+          })
+          router.push('/dashboard/transactions')
+        } else {
+          toast.error('Failed to create transaction', {
+            description: result.error || 'Something went wrong. Please try again.'
+          })
+        }
+      } else {
+        result = await updateTransaction(transaction!.slug, data as UpdateTransactionData)
+        
+        if (result.success) {
+          toast.success('Transaction updated successfully!', {
+            description: 'Your changes have been saved.'
+          })
+          // Use the updated transaction's slug (in case title changed and slug was regenerated)
+          const updatedSlug = result.data?.slug || transaction!.slug
+          router.push(`/dashboard/transactions/${updatedSlug}`)
+        } else {
+          toast.error('Failed to update transaction', {
+            description: result.error || 'Something went wrong. Please try again.'
+          })
+        }
+      }
+    } catch (error) {
+      console.error('Form submission error:', error)
+      toast.error('An unexpected error occurred', {
+        description: 'Please try again later.'
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="w-full max-w-2xl">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="space-y-2">
+          <Label htmlFor="title">Title</Label>
+          <Input
+            id="title"
+            placeholder="Enter transaction title"
+            {...register('title')}
+            className={errors.title ? 'border-red-500' : ''}
+          />
+          {errors.title && (
+            <p className="text-sm text-red-500">{errors.title.message}</p>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="type">Type</Label>
+            <Select 
+              value={watchedType} 
+              onValueChange={(value) => setValue('type', value as 'income' | 'expense')}
+            >
+              <SelectTrigger className={errors.type ? 'border-red-500' : ''}>
+                <SelectValue placeholder="Select type" />
+              </SelectTrigger>
+              <SelectContent>
+                {TRANSACTION_TYPES.map((type) => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.type && (
+              <p className="text-sm text-red-500">{errors.type.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="amount">Amount</Label>
+            <Input
+              id="amount"
+              type="number"
+              step="0.01"
+              placeholder="0.00"
+              {...register('amount', { valueAsNumber: true })}
+              className={errors.amount ? 'border-red-500' : ''}
+            />
+            {errors.amount && (
+              <p className="text-sm text-red-500">{errors.amount.message}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="category">Category</Label>
+            <Select 
+              value={watch('category')} 
+              onValueChange={(value) => setValue('category', value)}
+            >
+              <SelectTrigger className={errors.category ? 'border-red-500' : ''}>
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                {CATEGORIES.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.category && (
+              <p className="text-sm text-red-500">{errors.category.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="date">Date</Label>
+            <DatePicker
+              date={watchedDate ? new Date(watchedDate) : undefined}
+              onDateChange={(date) => {
+                if (date) {
+                  setValue('date', date.toISOString().split('T')[0])
+                } else {
+                  setValue('date', '')
+                }
+              }}
+              placeholder="Select transaction date"
+              className={errors.date ? 'border-red-500' : ''}
+            />
+            {errors.date && (
+              <p className="text-sm text-red-500">{errors.date.message}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="receipt_url">Receipt URL (Optional)</Label>
+          <Input
+            id="receipt_url"
+            type="url"
+            placeholder="https://example.com/receipt.pdf"
+            {...register('receipt_url')}
+            className={errors.receipt_url ? 'border-red-500' : ''}
+          />
+          {errors.receipt_url && (
+            <p className="text-sm text-red-500">{errors.receipt_url.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="notes">Notes (Optional)</Label>
+          <RichTextEditor
+            content={watchedNotes}
+            onChange={(value) => setValue('notes', value)}
+            placeholder="Add any additional notes about this transaction..."
+          />
+        </div>
+
+        <div className="flex gap-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.back()}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                {mode === 'create' ? 'Creating...' : 'Updating...'}
+              </>
+            ) : (
+              mode === 'create' ? 'Create Transaction' : 'Update Transaction'
+            )}
+          </Button>
+        </div>
+      </form>
+    </div>
+  )
+} 

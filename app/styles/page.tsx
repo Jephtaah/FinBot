@@ -15,7 +15,7 @@ export default function StylesPage() {
       <div className="space-y-4">
         <h1 className="text-4xl font-bold tracking-tight">Design System</h1>
         <p className="text-xl text-muted-foreground">
-          A comprehensive overview of FinBot's design system including colors, typography, and components.
+          A comprehensive overview of FinBot&apos;s design system including colors, typography, and components.
         </p>
       </div>
 
@@ -394,7 +394,7 @@ export default function StylesPage() {
         <div className="space-y-2">
           <h2 className="text-3xl font-semibold tracking-tight">Spacing & Layout</h2>
           <p className="text-muted-foreground">
-            Consistent spacing scale and layout patterns using Tailwind's spacing system.
+            Consistent spacing scale and layout patterns using Tailwind&apos;s spacing system.
           </p>
         </div>
 
