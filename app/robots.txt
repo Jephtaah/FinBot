@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Allow: /auth/sign-up
+Allow: /auth/login
+
+Disallow: /protected/
+Disallow: /api/
+
+Sitemap: /sitemap.xml 
