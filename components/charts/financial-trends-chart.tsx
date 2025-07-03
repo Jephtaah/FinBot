@@ -64,16 +64,16 @@ export function FinancialTrendsChart({ data }: FinancialTrendsChartProps) {
           Income vs expenses over the last 6 months
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={lineChartConfig} className="h-[350px]">
+      <CardContent className="pb-2">
+        <ChartContainer config={lineChartConfig} className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={data}
               margin={{
-                top: 20,
-                right: 30,
-                left: 20,
-                bottom: 60,
+                top: 5,
+                right: 10,
+                left: 10,
+                bottom: 5,
               }}
             >
               <XAxis
@@ -113,19 +113,6 @@ export function FinancialTrendsChart({ data }: FinancialTrendsChartProps) {
                   return null
                 }}
               />
-              <Legend 
-                verticalAlign="bottom" 
-                height={36}
-                iconType="line"
-                formatter={(value, entry) => (
-                  <span style={{ color: entry.color, fontSize: '14px', fontWeight: '500' }}>
-                    {value}
-                  </span>
-                )}
-                wrapperStyle={{
-                  paddingTop: '20px'
-                }}
-              />
               <Line
                 dataKey="income"
                 type="monotone"
@@ -147,6 +134,18 @@ export function FinancialTrendsChart({ data }: FinancialTrendsChartProps) {
             </LineChart>
           </ResponsiveContainer>
         </ChartContainer>
+        
+        {/* Move legend outside the chart container */}
+        <div className="flex items-center justify-center gap-6 mt-3 pt-3 border-t">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-0.5 bg-green-500 rounded" />
+            <span className="text-sm font-medium text-green-600">Income</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-0.5 bg-red-500 rounded" />
+            <span className="text-sm font-medium text-red-600">Expenses</span>
+          </div>
+        </div>
       </CardContent>
     </Card>
   )

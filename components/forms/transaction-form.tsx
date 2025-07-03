@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -10,9 +10,15 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { DatePicker } from '@/components/ui/date-picker'
 import { RichTextEditor } from '@/components/ui/rich-text-editor'
+import { SingleImageDropzone } from '@/components/ui/single-image-dropzone'
+import { ReceiptImagesDisplay } from '@/components/ui/receipt-images-display'
+import { useSingleImageUpload } from '@/hooks/use-single-image-upload'
+import { useUser } from '@/hooks/use-user'
 import { createTransaction, updateTransaction } from '@/lib/actions/transactions'
+import { saveReceiptImage, getReceiptImages } from '@/lib/actions/receipt-images'
 import { createTransactionSchema, updateTransactionSchema, type CreateTransactionData, type UpdateTransactionData } from '@/lib/validations/transaction'
 import type { Transaction } from '@/types'
+import type { Database } from '@/types/database'
 import { toast } from 'sonner'
 
 interface TransactionFormProps {
@@ -47,6 +53,10 @@ const TRANSACTION_TYPES = [
 export function TransactionForm({ transaction, mode }: TransactionFormProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [existingImages, setExistingImages] = useState<Database['public']['Tables']['receipt_images']['Row'][]>([])
+  const [loadingImages, setLoadingImages] = useState(false)
+  const [pendingUpload, setPendingUpload] = useState<any>(null)
+  const { user } = useUser()
 
   const schema = mode === 'create' ? createTransactionSchema : updateTransactionSchema
   
@@ -65,7 +75,6 @@ export function TransactionForm({ transaction, mode }: TransactionFormProps) {
       category: transaction.category,
       date: transaction.date,
       notes: transaction.notes || {},
-      receipt_url: transaction.receipt_url || undefined,
     } : {
       type: 'expense',
       date: new Date().toISOString().split('T')[0],
@@ -77,6 +86,68 @@ export function TransactionForm({ transaction, mode }: TransactionFormProps) {
   const watchedNotes = watch('notes')
   const watchedDate = watch('date')
 
+  // Load existing receipt images for edit mode
+  useEffect(() => {
+    if (mode === 'edit' && transaction) {
+      const loadExistingImages = async () => {
+        setLoadingImages(true)
+        try {
+          const images = await getReceiptImages(transaction.id)
+          setExistingImages(images)
+        } catch (error) {
+          console.error('Error loading existing images:', error)
+        } finally {
+          setLoadingImages(false)
+        }
+      }
+      
+      loadExistingImages()
+    }
+  }, [mode, transaction])
+
+  const handleImageDeleted = () => {
+    // Refresh the images list when an image is deleted
+    if (mode === 'edit' && transaction) {
+      const loadExistingImages = async () => {
+        try {
+          const images = await getReceiptImages(transaction.id)
+          setExistingImages(images)
+        } catch (error) {
+          console.error('Error reloading images:', error)
+        }
+      }
+      
+      loadExistingImages()
+    }
+  }
+
+  // Initialize single image dropzone for receipt uploads
+  const imageUploadProps = useSingleImageUpload({
+    bucketName: 'receipts',
+    path: user?.id || '',
+    allowedMimeTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf'],
+    maxFileSize: 5 * 1024 * 1024, // 5MB
+    disabled: existingImages.length > 0, // Disable if there are existing images
+    onUploadComplete: async (uploadedFile) => {
+      console.log('File uploaded:', uploadedFile)
+      setPendingUpload(uploadedFile)
+      toast.success('Image uploaded successfully!', {
+        description: 'Image will be attached when you save the transaction.'
+      })
+    },
+    onUploadError: (error) => {
+      toast.error('Upload failed', {
+        description: error.message
+      })
+    },
+    onFileSelected: (file) => {
+      // Clear pending upload when file is removed
+      if (!file) {
+        setPendingUpload(null)
+      }
+    }
+  })
+
   const onSubmit = async (data: CreateTransactionData | UpdateTransactionData) => {
     setIsSubmitting(true)
     
@@ -86,11 +157,22 @@ export function TransactionForm({ transaction, mode }: TransactionFormProps) {
       if (mode === 'create') {
         result = await createTransaction(data as CreateTransactionData)
         
-        if (result.success) {
+        if (result.success && result.data) {
+          // Save receipt image metadata if a file was uploaded
+          if (pendingUpload) {
+            await saveReceiptImage(result.data.id, {
+              file_name: pendingUpload.name,
+              file_path: pendingUpload.path,
+              file_size: pendingUpload.size,
+              mime_type: pendingUpload.type,
+              storage_bucket: 'receipts'
+            })
+          }
+          
           toast.success('Transaction created successfully!', {
             description: `${data.type === 'income' ? 'Income' : 'Expense'} of $${data.amount} has been added.`
           })
-          router.push('/dashboard/transactions')
+          router.push(`/dashboard/transactions/${result.data.slug}`)
         } else {
           toast.error('Failed to create transaction', {
             description: result.error || 'Something went wrong. Please try again.'
@@ -99,7 +181,18 @@ export function TransactionForm({ transaction, mode }: TransactionFormProps) {
       } else {
         result = await updateTransaction(transaction!.slug, data as UpdateTransactionData)
         
-        if (result.success) {
+        if (result.success && result.data) {
+          // Save receipt image metadata if a new file was uploaded
+          if (pendingUpload) {
+            await saveReceiptImage(result.data.id, {
+              file_name: pendingUpload.name,
+              file_path: pendingUpload.path,
+              file_size: pendingUpload.size,
+              mime_type: pendingUpload.type,
+              storage_bucket: 'receipts'
+            })
+          }
+          
           toast.success('Transaction updated successfully!', {
             description: 'Your changes have been saved.'
           })
@@ -220,18 +313,38 @@ export function TransactionForm({ transaction, mode }: TransactionFormProps) {
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="receipt_url">Receipt URL (Optional)</Label>
-          <Input
-            id="receipt_url"
-            type="url"
-            placeholder="https://example.com/receipt.pdf"
-            {...register('receipt_url')}
-            className={errors.receipt_url ? 'border-red-500' : ''}
-          />
-          {errors.receipt_url && (
-            <p className="text-sm text-red-500">{errors.receipt_url.message}</p>
+        <div className="space-y-4">
+          <Label>Receipt Image (Optional)</Label>
+          
+          {/* Show existing images for edit mode */}
+          {mode === 'edit' && (
+            <div>
+              {loadingImages ? (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-300" />
+                  Loading existing images...
+                </div>
+              ) : existingImages.length > 0 ? (
+                <div className="mb-4">
+                  <ReceiptImagesDisplay 
+                    images={existingImages} 
+                    onImageDeleted={handleImageDeleted}
+                  />
+                </div>
+              ) : null}
+            </div>
           )}
+          
+          {/* Single Image Dropzone */}
+          <div>
+            <h4 className="text-sm font-medium mb-2">
+              {mode === 'edit' ? 'Add New Image' : 'Upload Image'}
+            </h4>
+            <SingleImageDropzone 
+              {...imageUploadProps} 
+              disabled={existingImages.length > 0}
+            />
+          </div>
         </div>
 
         <div className="space-y-2">

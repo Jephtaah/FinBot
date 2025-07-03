@@ -88,9 +88,9 @@ export function CategoryChart({ data }: CategoryChartProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={radarChartConfig} className="h-[300px]">
+        <ChartContainer config={radarChartConfig} className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <RadarChart data={radarData} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+            <RadarChart data={radarData} margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
               <PolarGrid 
                 stroke="hsl(var(--border))" 
                 strokeWidth={1}

@@ -82,7 +82,10 @@ export function RichTextEditor({
   }
 
   return (
-    <div className="border rounded-md relative">
+    <div className={cn(
+      "relative",
+      editable && "border rounded-md"
+    )}>
       {editable && (
         <BubbleMenu
           editor={editor}

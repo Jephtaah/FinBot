@@ -151,7 +151,11 @@ export default function ReceiptsPage() {
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
-                        {new Date(receipt.uploadDate).toLocaleDateString()}
+                        {new Date(receipt.uploadDate).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit'
+                        })}
                       </span>
                       <span className="flex items-center gap-1">
                         <DollarSign className="h-3 w-3" />

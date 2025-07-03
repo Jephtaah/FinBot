@@ -8,11 +8,13 @@ import {
   Receipt, 
   CreditCard, 
   User,
-  Menu
+  Menu,
+  LogOut
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { LogoutButton } from "@/components/logout-button"
 
 const navigation = [
   {
@@ -112,6 +114,12 @@ function SidebarContent() {
               </Link>
             )
           })}
+          
+          {/* Logout Button */}
+          <LogoutButton className="w-full justify-start gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200">
+            <LogOut className="h-4 w-4" />
+            Logout
+          </LogoutButton>
         </nav>
       </div>
     </div>

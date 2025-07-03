@@ -4,8 +4,10 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { RichTextEditor } from '@/components/ui/rich-text-editor'
-import { Edit, ArrowLeft, Calendar, DollarSign, Tag, FileText, ExternalLink } from 'lucide-react'
+import { ReceiptImagesDisplay } from '@/components/ui/receipt-images-display'
+import { Edit, ArrowLeft, Calendar, DollarSign, Tag, FileText, ExternalLink, Image } from 'lucide-react'
 import { getTransactionBySlug, debugListAllTransactions } from '@/lib/actions/transactions'
+import { getReceiptImagesBySlug } from '@/lib/actions/receipt-images'
 import type { JSONContent } from '@tiptap/react'
 
 interface TransactionPageProps {
@@ -32,6 +34,9 @@ export default async function TransactionPage({ params }: TransactionPageProps) 
     console.log('Transaction not found, calling notFound()')
     notFound()
   }
+
+  // Fetch receipt images for this transaction
+  const receiptImages = await getReceiptImagesBySlug(decodedSlug)
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -126,6 +131,24 @@ export default async function TransactionPage({ params }: TransactionPageProps) 
               )}
             </CardContent>
           </Card>
+
+          {/* Receipt Images Card */}
+          {receiptImages.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Image className="h-5 w-5" />
+                  Receipt Images
+                </CardTitle>
+                <CardDescription>
+                  Attached receipt images and documents
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ReceiptImagesDisplay images={receiptImages} />
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Sidebar with metadata */}
@@ -152,16 +175,14 @@ export default async function TransactionPage({ params }: TransactionPageProps) 
                 </div>
               </div>
 
-              {transaction.receipt_url && (
+              {receiptImages.length > 0 && (
                 <div className="flex items-center gap-3">
-                  <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                  <Image className="h-4 w-4 text-muted-foreground" />
                   <div>
-                    <p className="text-sm font-medium">Receipt</p>
-                    <Button variant="link" className="p-0 h-auto text-sm" asChild>
-                      <a href={transaction.receipt_url} target="_blank" rel="noopener noreferrer">
-                        View Receipt
-                      </a>
-                    </Button>
+                    <p className="text-sm font-medium">Receipt Images</p>
+                    <p className="text-sm text-muted-foreground">
+                      {receiptImages.length} file{receiptImages.length > 1 ? 's' : ''} attached
+                    </p>
                   </div>
                 </div>
               )}
@@ -177,14 +198,26 @@ export default async function TransactionPage({ params }: TransactionPageProps) 
               <div>
                 <p className="text-sm font-medium">Created</p>
                 <p className="text-sm text-muted-foreground">
-                  {new Date(transaction.created_at).toLocaleString()}
+                  {new Date(transaction.created_at).toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
                 </p>
               </div>
               
               <div>
                 <p className="text-sm font-medium">Last Updated</p>
                 <p className="text-sm text-muted-foreground">
-                  {new Date(transaction.updated_at).toLocaleString()}
+                  {new Date(transaction.updated_at).toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
                 </p>
               </div>
               
