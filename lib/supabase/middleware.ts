@@ -38,19 +38,33 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   // Define public paths that don't require authentication
-  const publicPaths = ['/', '/auth', '/login', '/styles']
+  const publicPaths = [
+    '/', 
+    '/auth/login',
+    '/auth/sign-up',
+    '/auth/forgot-password',
+    '/auth/confirm',
+    '/auth/update-password',
+    '/styles'
+  ]
   const isPublicPath = publicPaths.some(path => 
-    request.nextUrl.pathname === path || request.nextUrl.pathname.startsWith(path)
+    request.nextUrl.pathname === path || 
+    request.nextUrl.pathname.startsWith('/auth/confirm/') ||
+    request.nextUrl.pathname.startsWith('/styles/')
   )
 
-  if (
-    !user &&
-    !isPublicPath
-  ) {
-    // no user, potentially respond by redirecting the user to the login page
+  // If there's no user and the path isn't public, redirect to login
+  if (!user && !isPublicPath) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth/login'
+    // Add the current path as a redirect parameter
+    url.searchParams.set('redirect', request.nextUrl.pathname)
     return NextResponse.redirect(url)
+  }
+
+  // If there is a user and they're on an auth page, redirect to dashboard
+  if (user && request.nextUrl.pathname.startsWith('/auth')) {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.

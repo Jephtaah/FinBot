@@ -35,8 +35,13 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
         password,
       })
       if (error) throw error
-      // Redirect to dashboard after successful login
-      router.push('/dashboard')
+      
+      // Get the redirect URL from the query parameters
+      const params = new URLSearchParams(window.location.search)
+      const redirectTo = params.get('redirect') || '/dashboard'
+      
+      // Decode the URL-encoded path and redirect
+      router.push(decodeURIComponent(redirectTo))
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An error occurred')
     } finally {

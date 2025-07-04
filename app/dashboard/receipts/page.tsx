@@ -1,51 +1,17 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Upload, Receipt, Calendar, DollarSign } from 'lucide-react'
+import { getAllReceiptImages, getReceiptStats } from '@/lib/actions/receipt-images'
+import Link from 'next/link'
 
-// Mock receipt data
-const mockReceipts = [
-  {
-    id: '1',
-    fileName: 'coffee-shop-receipt.jpg',
-    uploadDate: '2024-01-15',
-    amount: 15.99,
-    merchant: 'Local Cafe',
-    status: 'processed',
-    category: 'Food'
-  },
-  {
-    id: '2',
-    fileName: 'gas-station-receipt.jpg',
-    uploadDate: '2024-01-14',
-    amount: 45.20,
-    merchant: 'Shell',
-    status: 'processed',
-    category: 'Transport'
-  },
-  {
-    id: '3',
-    fileName: 'grocery-receipt.jpg',
-    uploadDate: '2024-01-13',
-    amount: 89.99,
-    merchant: 'Supermarket',
-    status: 'processing',
-    category: 'Shopping'
-  },
-  {
-    id: '4',
-    fileName: 'restaurant-receipt.jpg',
-    uploadDate: '2024-01-12',
-    amount: 25.50,
-    merchant: 'Restaurant',
-    status: 'processed',
-    category: 'Food'
-  },
-]
+export default async function ReceiptsPage() {
+  // Fetch real data from the database
+  const [receiptImages, receiptStats] = await Promise.all([
+    getAllReceiptImages(),
+    getReceiptStats()
+  ])
 
-export default function ReceiptsPage() {
-  const totalReceipts = mockReceipts.length
-  const processedReceipts = mockReceipts.filter(r => r.status === 'processed').length
-  const totalAmount = mockReceipts.reduce((sum, r) => sum + r.amount, 0)
+  const { totalReceipts, processedReceipts, totalValue } = receiptStats
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -56,9 +22,11 @@ export default function ReceiptsPage() {
             Upload and manage your receipt images
           </p>
         </div>
-        <Button>
-          <Upload className="mr-2 h-4 w-4" />
-          Upload Receipt
+        <Button asChild>
+          <Link href="/dashboard/transactions/new">
+            <Upload className="mr-2 h-4 w-4" />
+            Upload Receipt
+          </Link>
         </Button>
       </div>
 
@@ -96,7 +64,7 @@ export default function ReceiptsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${totalAmount.toFixed(2)}
+              ${totalValue.toFixed(2)}
             </div>
             <p className="text-xs text-muted-foreground">
               From all receipts
@@ -121,7 +89,9 @@ export default function ReceiptsPage() {
               <p className="text-muted-foreground mb-4">
                 Drop your receipt image here or click to browse
               </p>
-              <Button>Choose File</Button>
+              <Button asChild>
+                <Link href="/dashboard/transactions/new">Choose File</Link>
+              </Button>
               <p className="text-xs text-muted-foreground mt-2">
                 Supports JPG, PNG, PDF up to 10MB
               </p>
@@ -139,49 +109,66 @@ export default function ReceiptsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {mockReceipts.map((receipt) => (
-              <div key={receipt.id} className="flex items-center justify-between rounded-lg border p-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
-                    <Receipt className="h-5 w-5" aria-hidden="true" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="font-medium">{receipt.fileName}</span>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        {new Date(receipt.uploadDate).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: '2-digit',
-                          day: '2-digit'
-                        })}
+          {receiptImages.length === 0 ? (
+            <div className="text-center py-8">
+              <Receipt className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+              <p className="text-muted-foreground">No receipts uploaded yet</p>
+              <p className="text-sm text-muted-foreground">
+                Upload your first receipt to get started with automatic transaction processing
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {receiptImages.map((receiptImage) => {
+                const transaction = receiptImage.transactions as any
+                return (
+                  <div key={receiptImage.id} className="flex items-center justify-between rounded-lg border p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
+                        <Receipt className="h-5 w-5" aria-hidden="true" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-medium">{receiptImage.file_name}</span>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {new Date(receiptImage.uploaded_at).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: '2-digit',
+                              day: '2-digit'
+                            })}
+                          </span>
+                          {transaction && (
+                            <>
+                              <span className="flex items-center gap-1">
+                                <DollarSign className="h-3 w-3" />
+                                ${Math.abs(transaction.amount).toFixed(2)}
+                              </span>
+                              <span>• {transaction.title}</span>
+                              <span>• {transaction.category}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-3">
+                      <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-800">
+                        Processed
                       </span>
-                      <span className="flex items-center gap-1">
-                        <DollarSign className="h-3 w-3" />
-                        ${receipt.amount.toFixed(2)}
-                      </span>
-                      <span>• {receipt.merchant}</span>
-                      <span>• {receipt.category}</span>
+                                             {transaction && (
+                         <Button variant="outline" size="sm" asChild>
+                           <Link href={`/dashboard/transactions/${transaction.slug}`}>
+                             View
+                           </Link>
+                         </Button>
+                       )}
                     </div>
                   </div>
-                </div>
-                
-                <div className="flex items-center gap-3">
-                  <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                    receipt.status === 'processed' 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {receipt.status === 'processed' ? 'Processed' : 'Processing...'}
-                  </span>
-                  <Button variant="outline" size="sm">
-                    View
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
+                )
+              })}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

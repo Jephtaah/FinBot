@@ -225,4 +225,108 @@ export async function getReceiptImageUrl(filePath: string, bucketName = 'receipt
     console.error('Error getting receipt image URL:', error)
     return null
   }
+}
+
+/**
+ * Get all receipt images for the current user
+ */
+export async function getAllReceiptImages(): Promise<ReceiptImageRow[]> {
+  try {
+    const userId = await getCurrentUserId()
+    const supabase = await createClient()
+    
+    const { data, error } = await supabase
+      .from('receipt_images')
+      .select(`
+        *,
+        transactions (
+          id,
+          slug,
+          title,
+          amount,
+          category,
+          type
+        )
+      `)
+      .eq('user_id', userId)
+      .order('uploaded_at', { ascending: false })
+    
+    if (error) {
+      console.error('Error fetching all receipt images:', error)
+      return []
+    }
+    
+    return data || []
+  } catch (error) {
+    console.error('Error in getAllReceiptImages:', error)
+    return []
+  }
+}
+
+/**
+ * Get receipt statistics for the current user
+ */
+export async function getReceiptStats() {
+  try {
+    const userId = await getCurrentUserId()
+    const supabase = await createClient()
+    
+    // Get current month's start and end dates
+    const now = new Date()
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+    
+    // Count total receipts for this month
+    const { count: totalReceipts, error: countError } = await supabase
+      .from('receipt_images')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .gte('uploaded_at', startOfMonth.toISOString())
+      .lte('uploaded_at', endOfMonth.toISOString())
+    
+    if (countError) {
+      console.error('Error counting receipts:', countError)
+      return { totalReceipts: 0, processedReceipts: 0, totalValue: 0 }
+    }
+    
+    // Get receipt images with their transaction details to calculate total value
+    const { data: receiptsWithTransactions, error: receiptsError } = await supabase
+      .from('receipt_images')
+      .select(`
+        id,
+        uploaded_at,
+        transactions (
+          amount,
+          type
+        )
+      `)
+      .eq('user_id', userId)
+      .gte('uploaded_at', startOfMonth.toISOString())
+      .lte('uploaded_at', endOfMonth.toISOString())
+    
+    if (receiptsError) {
+      console.error('Error fetching receipt transactions:', receiptsError)
+      return { totalReceipts: totalReceipts || 0, processedReceipts: 0, totalValue: 0 }
+    }
+    
+    // Calculate total value and processed count
+    // For simplicity, we'll consider all receipts as "processed" since they're successfully uploaded
+    const processedReceipts = totalReceipts || 0
+    const totalValue = receiptsWithTransactions?.reduce((sum, receipt) => {
+      const transaction = receipt.transactions as any
+      if (transaction && transaction.amount) {
+        return sum + Math.abs(transaction.amount) // Use absolute value for total
+      }
+      return sum
+    }, 0) || 0
+    
+    return {
+      totalReceipts: totalReceipts || 0,
+      processedReceipts,
+      totalValue
+    }
+  } catch (error) {
+    console.error('Error in getReceiptStats:', error)
+    return { totalReceipts: 0, processedReceipts: 0, totalValue: 0 }
+  }
 } 

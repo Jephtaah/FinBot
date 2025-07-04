@@ -9,7 +9,8 @@ import {
   CreditCard, 
   User,
   Menu,
-  LogOut
+  LogOut,
+  MessageSquare
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -31,6 +32,11 @@ const navigation = [
     name: "Receipts",
     href: "/dashboard/receipts",
     icon: Receipt,
+  },
+  {
+    name: "AI Chat",
+    href: "/dashboard/chat",
+    icon: MessageSquare,
   },
 ]
 
@@ -114,10 +120,8 @@ function SidebarContent() {
               </Link>
             )
           })}
-          
-          {/* Logout Button */}
-          <LogoutButton className="w-full justify-start gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200">
-            <LogOut className="h-4 w-4" />
+          <LogoutButton className="w-full mt-2 justify-start text-sm font-medium h-auto py-2.5 px-3 bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground rounded-lg transition-all duration-200 border-0 shadow-none">
+            <LogOut className="h-4 w-4 mr-3" />
             Logout
           </LogoutButton>
         </nav>

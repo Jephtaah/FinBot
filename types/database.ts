@@ -17,6 +17,9 @@ export type Database = {
           first_name: string | null
           last_name: string | null
           avatar_url: string | null
+          monthly_income: number | null
+          monthly_expense: number | null
+          savings_goal: number | null
         }
         Insert: {
           id: string
@@ -25,6 +28,9 @@ export type Database = {
           first_name?: string | null
           last_name?: string | null
           avatar_url?: string | null
+          monthly_income?: number | null
+          monthly_expense?: number | null
+          savings_goal?: number | null
         }
         Update: {
           id?: string
@@ -33,6 +39,9 @@ export type Database = {
           first_name?: string | null
           last_name?: string | null
           avatar_url?: string | null
+          monthly_income?: number | null
+          monthly_expense?: number | null
+          savings_goal?: number | null
         }
         Relationships: [
           {
@@ -144,6 +153,47 @@ export type Database = {
           },
           {
             foreignKeyName: "receipt_images_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      messages: {
+        Row: {
+          id: string
+          user_id: string
+          assistant_id: string
+          role: string
+          content: string
+          metadata: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          assistant_id: string
+          role: string
+          content: string
+          metadata?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          assistant_id?: string
+          role?: string
+          content?: string
+          metadata?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
