@@ -14,12 +14,14 @@ import { SingleImageDropzone } from '@/components/ui/single-image-dropzone'
 import { ReceiptImagesDisplay } from '@/components/ui/receipt-images-display'
 import { useSingleImageUpload } from '@/hooks/use-single-image-upload'
 import { useUser } from '@/hooks/use-user'
+import { useNavigationHistory } from '@/hooks/use-navigation-history'
 import { createTransaction, updateTransaction } from '@/lib/actions/transactions'
 import { saveReceiptImage, getReceiptImages } from '@/lib/actions/receipt-images'
 import { createTransactionSchema, updateTransactionSchema, type CreateTransactionData, type UpdateTransactionData } from '@/lib/validations/transaction'
 import type { Transaction } from '@/types'
 import type { Database } from '@/types/database'
 import { toast } from 'sonner'
+import { CheckCircle, X } from 'lucide-react'
 
 interface TransactionFormProps {
   transaction?: Transaction
@@ -52,6 +54,7 @@ const TRANSACTION_TYPES = [
 
 export function TransactionForm({ transaction, mode }: TransactionFormProps) {
   const router = useRouter()
+  const { goBack, getBackButtonText, previousPath } = useNavigationHistory()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [existingImages, setExistingImages] = useState<Database['public']['Tables']['receipt_images']['Row'][]>([])
   const [loadingImages, setLoadingImages] = useState(false)
@@ -105,6 +108,35 @@ export function TransactionForm({ transaction, mode }: TransactionFormProps) {
     }
   }, [mode, transaction])
 
+  // Parse URL parameters for receipt processing data
+  useEffect(() => {
+    if (mode === 'create' && typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      
+      if (params.has('title')) {
+        setValue('title', params.get('title') || '')
+        setValue('amount', Number(params.get('amount')) || 0)
+        setValue('date', params.get('date') || new Date().toISOString().split('T')[0])
+        setValue('category', params.get('category') || '')
+        setValue('type', 'expense') // Most receipts are expenses
+        
+        // If receipt path is provided, set it as pending upload
+        const receiptPath = params.get('receipt_path')
+        if (receiptPath) {
+          // Create a mock uploaded file object to show in dropzone
+          const mockFile = {
+            name: receiptPath.split('/').pop() || 'receipt.jpg',
+            path: receiptPath,
+            url: '', // Will be populated by getReceiptImageUrl
+            size: 0,
+            type: 'image/jpeg'
+          }
+          setPendingUpload(mockFile)
+        }
+      }
+    }
+  }, [mode, setValue])
+
   const handleImageDeleted = () => {
     // Refresh the images list when an image is deleted
     if (mode === 'edit' && transaction) {
@@ -127,7 +159,7 @@ export function TransactionForm({ transaction, mode }: TransactionFormProps) {
     path: user?.id || '',
     allowedMimeTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf'],
     maxFileSize: 5 * 1024 * 1024, // 5MB
-    disabled: existingImages.length > 0, // Disable if there are existing images
+    disabled: existingImages.length > 0 || !!pendingUpload, // Disable if there are existing images or pending upload
     onUploadComplete: async (uploadedFile) => {
       console.log('File uploaded:', uploadedFile)
       setPendingUpload(uploadedFile)
@@ -172,6 +204,8 @@ export function TransactionForm({ transaction, mode }: TransactionFormProps) {
           toast.success('Transaction created successfully!', {
             description: `${data.type === 'income' ? 'Income' : 'Expense'} of $${data.amount} has been added.`
           })
+          
+          // Always redirect to the transaction detail page
           router.push(`/dashboard/transactions/${result.data.slug}`)
         } else {
           toast.error('Failed to create transaction', {
@@ -196,6 +230,8 @@ export function TransactionForm({ transaction, mode }: TransactionFormProps) {
           toast.success('Transaction updated successfully!', {
             description: 'Your changes have been saved.'
           })
+          
+          // Always redirect to the transaction detail page
           // Use the updated transaction's slug (in case title changed and slug was regenerated)
           const updatedSlug = result.data?.slug || transaction!.slug
           router.push(`/dashboard/transactions/${updatedSlug}`)
@@ -340,10 +376,39 @@ export function TransactionForm({ transaction, mode }: TransactionFormProps) {
             <h4 className="text-sm font-medium mb-2">
               {mode === 'edit' ? 'Add New Image' : 'Upload Image'}
             </h4>
-            <SingleImageDropzone 
-              {...imageUploadProps} 
-              disabled={existingImages.length > 0}
-            />
+            
+            {pendingUpload ? (
+              <div className="border-2 border-dashed border-green-300 rounded-lg p-6 bg-green-50">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center">
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-green-800">
+                        Receipt uploaded from processing
+                      </p>
+                      <p className="text-xs text-green-600">
+                        {pendingUpload.name}
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setPendingUpload(null)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <SingleImageDropzone 
+                {...imageUploadProps} 
+                disabled={existingImages.length > 0}
+              />
+            )}
           </div>
         </div>
 
@@ -360,10 +425,10 @@ export function TransactionForm({ transaction, mode }: TransactionFormProps) {
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.back()}
+            onClick={goBack}
             disabled={isSubmitting}
           >
-            Cancel
+            {getBackButtonText()}
           </Button>
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? (

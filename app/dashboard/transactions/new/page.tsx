@@ -1,20 +1,16 @@
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { ArrowLeft } from 'lucide-react'
 import { TransactionForm } from '@/components/forms/transaction-form'
+import { SmartBackButton } from '@/components/ui/smart-back-button'
 
 export default function NewTransactionPage() {
   return (
     <div className="flex flex-1 flex-col gap-6 p-4 md:gap-8 md:p-8">
-      {/* Top Navigation - Only Back Button */}
+      {/* Top Navigation - Smart Back Button */}
       <div className="flex items-center">
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/transactions">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Transactions
-          </Link>
-        </Button>
+        <SmartBackButton 
+          fallbackHref="/dashboard/transactions"
+          fallbackText="Back to Transactions"
+        />
       </div>
 
       {/* Page Header */}

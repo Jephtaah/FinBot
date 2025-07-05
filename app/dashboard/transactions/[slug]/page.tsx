@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { RichTextEditor } from '@/components/ui/rich-text-editor'
 import { ReceiptImagesDisplay } from '@/components/ui/receipt-images-display'
+import { SmartBackButton } from '@/components/ui/smart-back-button'
 import { Edit, ArrowLeft, Calendar, DollarSign, Tag, FileText, ExternalLink, Image } from 'lucide-react'
 import { getTransactionBySlug, debugListAllTransactions } from '@/lib/actions/transactions'
 import { getReceiptImagesBySlug } from '@/lib/actions/receipt-images'
@@ -57,14 +58,9 @@ export default async function TransactionPage({ params }: TransactionPageProps) 
 
   return (
     <div className="flex flex-1 flex-col gap-6 p-4 md:gap-8 md:p-8">
-      {/* Top Navigation - Only Back Button */}
+      {/* Top Navigation - Smart Back Button */}
       <div className="flex items-center">
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/dashboard/transactions">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Transactions
-          </Link>
-        </Button>
+        <SmartBackButton />
       </div>
 
       {/* Page Header */}

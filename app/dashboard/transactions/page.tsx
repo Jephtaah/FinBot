@@ -117,6 +117,7 @@ export default async function TransactionsPage() {
                   key={transaction.id} 
                   transaction={transaction} 
                   showActions={true}
+                  clickable={true}
                 />
               ))}
             </div>
