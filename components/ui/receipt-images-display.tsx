@@ -33,7 +33,7 @@ export function ReceiptImagesDisplay({ images, onImageDeleted }: ReceiptImagesDi
           description: result.error
         })
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred while deleting the image')
     } finally {
       setDeletingIds(prev => {

@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import { TrendingUp, TrendingDown, Edit, Trash2, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'

@@ -14,6 +14,7 @@ export async function clearChatHistory(assistantId: string) {
 
     console.log('Clearing chat history for:', { userId: user.id, assistantId })
 
+    // Use the stored procedure
     const { error } = await supabase.rpc('delete_chat_messages', {
       p_user_id: user.id,
       p_assistant_id: assistantId
@@ -43,6 +44,7 @@ export async function fetchChatHistoryForExport(assistantId: string) {
       return { success: false, error: 'Not authenticated' }
     }
 
+    // Use select query
     const { data, error } = await supabase
       .from('messages')
       .select('*')

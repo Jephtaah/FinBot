@@ -20,7 +20,7 @@ export function SmartBackButton({
   fallbackHref = "/dashboard/transactions",
   fallbackText = "Back to Transactions"
 }: SmartBackButtonProps) {
-  const { goBack, getBackButtonText, canGoBack, previousPath } = useNavigationHistory()
+  const { goBack, getBackButtonText, canGoBack } = useNavigationHistory()
   const currentPath = usePathname()
 
   // Determine the most appropriate fallback based on current path

@@ -20,6 +20,16 @@ export interface ExtractedReceiptData {
   category?: string
 }
 
+// Define a type for the transaction data
+interface TransactionData {
+  amount?: number;
+  type?: string;
+  id?: string;
+  slug?: string;
+  title?: string;
+  category?: string;
+}
+
 /**
  * Get current user ID or redirect to login
  */
@@ -373,7 +383,7 @@ export async function getReceiptDataAndStats() {
     const totalReceipts = statsResult.data?.length || 0
     const processedReceipts = totalReceipts // All uploaded receipts are considered processed
     const totalValue = statsResult.data?.reduce((sum, receipt) => {
-      const transaction = receipt.transactions as any
+      const transaction = receipt.transactions as TransactionData
       if (transaction && transaction.amount) {
         return sum + Math.abs(transaction.amount)
       }
@@ -449,7 +459,7 @@ export async function getReceiptStats() {
     // For simplicity, we'll consider all receipts as "processed" since they're successfully uploaded
     const processedReceipts = totalReceipts || 0
     const totalValue = receiptsWithTransactions?.reduce((sum, receipt) => {
-      const transaction = receipt.transactions as any
+      const transaction = receipt.transactions as TransactionData
       if (transaction && transaction.amount) {
         return sum + Math.abs(transaction.amount) // Use absolute value for total
       }

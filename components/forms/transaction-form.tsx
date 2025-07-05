@@ -28,6 +28,15 @@ interface TransactionFormProps {
   mode: 'create' | 'edit'
 }
 
+// Define an interface for the uploaded file
+interface UploadedFile {
+  name: string;
+  path: string;
+  url?: string;
+  size: number;
+  type: string;
+}
+
 const CATEGORIES = [
   'Food & Dining',
   'Transportation',
@@ -54,11 +63,11 @@ const TRANSACTION_TYPES = [
 
 export function TransactionForm({ transaction, mode }: TransactionFormProps) {
   const router = useRouter()
-  const { goBack, getBackButtonText, previousPath } = useNavigationHistory()
+  const { goBack, getBackButtonText } = useNavigationHistory()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [existingImages, setExistingImages] = useState<Database['public']['Tables']['receipt_images']['Row'][]>([])
   const [loadingImages, setLoadingImages] = useState(false)
-  const [pendingUpload, setPendingUpload] = useState<any>(null)
+  const [pendingUpload, setPendingUpload] = useState<UploadedFile | null>(null)
   const { user } = useUser()
 
   const schema = mode === 'create' ? createTransactionSchema : updateTransactionSchema

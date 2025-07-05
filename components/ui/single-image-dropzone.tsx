@@ -39,7 +39,6 @@ export function SingleImageDropzone({
   isUploaded,
   disabled: externallyDisabled = false,
 }: SingleImageDropzoneProps) {
-  const hasFile = selectedFile || uploadedFile
   const isInvalid = isDragReject || (error !== null)
   const isDisabled = !!uploadedFile || externallyDisabled // Disable when there's an uploaded file or externally disabled
 

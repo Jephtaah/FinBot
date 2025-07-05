@@ -7,8 +7,7 @@ import {
   Line, 
   XAxis, 
   YAxis, 
-  ResponsiveContainer,
-  Legend 
+  ResponsiveContainer
 } from 'recharts'
 
 interface ChartData {

@@ -74,7 +74,7 @@ export function useChatHistory(assistantId: string) {
       console.log('Message saved successfully:', data);
       return data;
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       console.log('Message save mutation succeeded, invalidating queries');
       queryClient.invalidateQueries({ queryKey: ['chat-history', assistantId, user?.id] });
     },

@@ -81,7 +81,7 @@ export default function ReceiptsPage() {
     loadStats()
   }, [])
 
-  const handleUploadComplete = async (uploadedFile: any) => {
+  const handleUploadComplete = async (uploadedFile: { path: string }) => {
     try {
       setIsProcessing(true)
       
@@ -107,9 +107,9 @@ export default function ReceiptsPage() {
       })
 
       router.push(`/dashboard/transactions/new?${searchParams.toString()}`)
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error('Failed to process receipt', {
-        description: error.message
+        description: error instanceof Error ? error.message : 'Unknown error'
       })
     } finally {
       setIsProcessing(false)
