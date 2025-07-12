@@ -9,10 +9,6 @@ import OpenAI from 'openai'
 type ReceiptImageInsert = Database['public']['Tables']['receipt_images']['Insert']
 type ReceiptImageRow = Database['public']['Tables']['receipt_images']['Row']
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
-
 export interface ExtractedReceiptData {
   title: string
   amount: number
@@ -486,6 +482,11 @@ export async function processReceiptImage(imageUrl: string): Promise<{
   error?: string
 }> {
   try {
+    // Initialize OpenAI client only when needed
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    })
+    
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
