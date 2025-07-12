@@ -1,7 +1,6 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -15,6 +14,7 @@ import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { signUpWithFallback } from '@/lib/auth/signup-with-fallback'
 
 export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
   const [fullName, setFullName] = useState('')
@@ -27,7 +27,6 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
-    const supabase = createClient()
     setIsLoading(true)
     setError(null)
 
@@ -38,25 +37,22 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const result = await signUpWithFallback({
         email,
         password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`,
-          data: {
-            full_name: fullName,
-          },
-        },
+        fullName: fullName.trim() || undefined,
       })
-      
-      if (error) throw error
-      
-      // The trigger function will automatically create the profile
-      // No need to manually update it here
-      
-      router.push('/auth/sign-up-success')
+
+      if (result.success) {
+        console.log('🎉 Signup successful!')
+        router.push('/auth/sign-up-success')
+      } else {
+        console.error('❌ Signup failed:', result.error)
+        setError(result.error || 'An error occurred during signup')
+      }
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : 'An error occurred')
+      console.error('💥 Unexpected signup error:', error)
+      setError(error instanceof Error ? error.message : 'An unexpected error occurred')
     } finally {
       setIsLoading(false)
     }
