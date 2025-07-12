@@ -4,23 +4,15 @@ import { NextRequest } from 'next/server';
 import { ASSISTANTS } from '@/lib/chat/assistants';
 import { getFinancialTools } from '@/lib/chat/tools';
 import { createClient } from '@/lib/supabase/server';
+import { rateLimit, RATE_LIMITS, validateChatMessages } from '@/lib/utils/rate-limit';
 
 export const maxDuration = 30;
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages, assistantId, context } = await req.json();
-    console.log('Chat API called with:', { assistantId, messagesCount: messages?.length, hasContext: !!context });
-    
-    // Verify user authentication
+    // Verify user authentication first
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    console.log('Auth check:', { 
-      hasUser: !!user, 
-      userId: user?.id,
-      authError: authError?.message 
-    });
     
     if (authError || !user) {
       console.log('Authentication failed:', authError);
@@ -29,6 +21,54 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       );
     }
+    
+    // Apply rate limiting
+    const rateLimitResult = await rateLimit(user.id, RATE_LIMITS.CHAT_API);
+    
+    if (!rateLimitResult.success) {
+      console.log('Rate limit exceeded for user:', user.id);
+      return new Response(
+        JSON.stringify({
+          error: 'Rate limit exceeded. Please wait before sending more messages.',
+          limit: rateLimitResult.limit,
+          remaining: rateLimitResult.remaining,
+          resetTime: rateLimitResult.resetTime,
+          retryAfter: rateLimitResult.retryAfter
+        }),
+        {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-RateLimit-Limit': rateLimitResult.limit.toString(),
+            'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+            'X-RateLimit-Reset': rateLimitResult.resetTime.toString(),
+            'Retry-After': rateLimitResult.retryAfter?.toString() || '60'
+          }
+        }
+      );
+    }
+    
+    // Parse and validate request body
+    const body = await req.json();
+    const { messages, assistantId, context } = body;
+    
+    // Validate messages
+    const messagesValidation = validateChatMessages(messages);
+    if (!messagesValidation.valid) {
+      console.log('Invalid messages:', messagesValidation.reason);
+      return new Response(
+        JSON.stringify({ error: messagesValidation.reason }),
+        { status: 400 }
+      );
+    }
+    
+    console.log('Chat API called with:', { 
+      assistantId, 
+      messagesCount: messages?.length, 
+      hasContext: !!context,
+      userId: user.id,
+      remaining: rateLimitResult.remaining 
+    });
     
     const assistant = ASSISTANTS[assistantId];
     if (!assistant) {
@@ -95,7 +135,14 @@ export async function POST(req: NextRequest) {
     });
 
     console.log('OpenAI request created, returning stream response');
-    return result.toDataStreamResponse();
+    const response = result.toDataStreamResponse();
+    
+    // Add rate limit headers to successful responses
+    response.headers.set('X-RateLimit-Limit', rateLimitResult.limit.toString());
+    response.headers.set('X-RateLimit-Remaining', rateLimitResult.remaining.toString());
+    response.headers.set('X-RateLimit-Reset', rateLimitResult.resetTime.toString());
+    
+    return response;
   } catch (error) {
     console.error('Chat API error:', error);
     return new Response(

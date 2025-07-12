@@ -37,6 +37,26 @@ export function ChatInterface({ assistantId }: ChatInterfaceProps) {
   const assistant = ASSISTANTS[assistantId];
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   
+  // Custom submit handler to handle rate limiting
+  const handleChatSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    try {
+      // Call the original submit handler
+      await handleSubmit(e);
+    } catch (error: any) {
+      console.error('Submit error:', error);
+      
+      // Handle rate limiting errors at the submit level as well
+      if (error.status === 429 || (error.message && error.message.includes('Rate limit'))) {
+        toast.error('Rate limit reached', {
+          description: 'You have reached the limit of 10 messages per hour. Please wait before sending more messages.',
+          duration: 6000,
+        });
+      }
+    }
+  };
+
   const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({
     api: '/api/chat',
     body: {
@@ -81,6 +101,24 @@ export function ChatInterface({ assistantId }: ChatInterfaceProps) {
     },
     onError: (error) => {
       console.error('Chat error:', error);
+      
+      // Enhanced rate limit error detection
+      const errorMessage = error.message || '';
+      const isRateLimit = errorMessage.includes('Rate limit exceeded') || 
+                         errorMessage.includes('429') ||
+                         errorMessage.includes('Too Many Requests');
+      
+      if (isRateLimit) {
+        toast.error('Rate limit reached', {
+          description: 'You have reached the limit of 10 messages per hour. Please wait before sending more messages.',
+          duration: 6000,
+        });
+      } else {
+        toast.error('Message failed', {
+          description: 'Failed to send your message. Please try again.',
+          duration: 4000,
+        });
+      }
     },
   });
 
@@ -305,7 +343,7 @@ export function ChatInterface({ assistantId }: ChatInterfaceProps) {
           <ChatInput
             value={input}
             onChange={(value) => handleInputChange({ target: { value } } as React.ChangeEvent<HTMLInputElement>)}
-            onSubmit={handleSubmit}
+            onSubmit={handleChatSubmit}
             isLoading={isLoading}
             placeholder={`Ask ${assistant.name} anything about your finances...`}
           />

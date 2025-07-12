@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/utils/server-auth'
 import { AdminSidebar } from '@/components/ui/admin-sidebar'
 import { Providers } from '@/components/providers'
 
@@ -8,19 +8,17 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  const supabase = await createClient()
-
-  const { data, error } = await supabase.auth.getUser()
-  if (error || !data?.user) {
-    redirect('/auth/login')
-  }
-
-  // Check if user has admin role using the safe function
-  const { data: isAdminResult } = await supabase
-    .rpc('auth_user_is_admin')
-
-  if (!isAdminResult) {
-    redirect('/dashboard') // Redirect non-admin users to regular dashboard
+  try {
+    // This will throw an error if user is not authenticated or not admin
+    await requireAdmin()
+  } catch (error) {
+    console.error('Admin access denied:', error)
+    // Redirect to login if not authenticated, or dashboard if not admin
+    if (error instanceof Error && error.message === 'User not authenticated') {
+      redirect('/auth/login')
+    } else {
+      redirect('/dashboard')
+    }
   }
 
   return (

@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { validateProfileData, validateFinancialData } from '@/lib/validations/profile'
 
 export async function updateProfile(formData: FormData) {
   const supabase = await createClient()
@@ -11,13 +12,14 @@ export async function updateProfile(formData: FormData) {
     return { success: false, error: 'Not authenticated' }
   }
 
-  const fullName = formData.get('fullName') as string
-  
   try {
+    // Validate and sanitize input data
+    const validatedData = validateProfileData(formData)
+    
     const { error } = await supabase
       .from('profiles')
       .update({ 
-        full_name: fullName,
+        full_name: validatedData.fullName,
         updated_at: new Date().toISOString()
       })
       .eq('id', user.id)
@@ -40,17 +42,16 @@ export async function updateFinancialInfo(formData: FormData) {
     return { success: false, error: 'Not authenticated' }
   }
 
-  const monthlyIncome = formData.get('monthlyIncome') as string
-  const monthlyExpenses = formData.get('monthlyExpenses') as string
-  const savingsGoal = formData.get('savingsGoal') as string
-  
   try {
+    // Validate and sanitize financial input data
+    const validatedData = validateFinancialData(formData)
+    
     const { error } = await supabase
       .from('profiles')
       .update({ 
-        monthly_income: monthlyIncome ? parseFloat(monthlyIncome) : null,
-        monthly_expense: monthlyExpenses ? parseFloat(monthlyExpenses) : null,
-        savings_goal: savingsGoal ? parseFloat(savingsGoal) : null,
+        monthly_income: validatedData.monthlyIncome,
+        monthly_expense: validatedData.monthlyExpenses,
+        savings_goal: validatedData.savingsGoal,
         updated_at: new Date().toISOString()
       })
       .eq('id', user.id)
