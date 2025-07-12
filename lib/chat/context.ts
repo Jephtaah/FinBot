@@ -40,6 +40,15 @@ export function useFinancialContext() {
       if (!user) throw new Error('User not authenticated');
       
       console.log('Fetching financial context for user:', user.id);
+      console.time('financial-context-fetch');
+
+      // Ensure user has a profile record (emergency bypass safety net)
+      try {
+        await supabase.rpc('create_user_profile_if_missing');
+      } catch (error) {
+        console.warn('Profile creation safety net failed:', error);
+        // Continue anyway - profile might already exist
+      }
 
       const [transactions, receipts, profile] = await Promise.all([
         supabase
@@ -116,6 +125,7 @@ export function useFinancialContext() {
         savingsGoal: result.profile?.savingsGoal || 'Not set',
       });
       
+      console.timeEnd('financial-context-fetch');
       return result;
     },
     staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes

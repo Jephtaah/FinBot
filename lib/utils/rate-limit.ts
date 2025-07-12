@@ -84,7 +84,7 @@ export async function rateLimit(
  */
 export const RATE_LIMITS = {
   CHAT_API: {
-    maxRequests: 10, // 10 requests per hour per user
+    maxRequests: 30, // 30 requests per hour per user (more reasonable for chat)
     windowMs: 60 * 60 * 1000, // 1 hour
     keyGenerator: (userId: string) => `chat:${userId}`
   },
@@ -197,6 +197,13 @@ export function validateChatMessages(messages: any[]): { valid: boolean; reason?
     }
     
     if (!message.content) {
+      console.error('❌ Message validation failed - no content:', {
+        messageIndex: messages.indexOf(message),
+        message: message,
+        hasContent: !!message.content,
+        contentType: typeof message.content,
+        contentValue: message.content
+      });
       return { valid: false, reason: 'Each message must have content' }
     }
     

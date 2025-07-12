@@ -13,6 +13,9 @@ export async function updateProfile(formData: FormData) {
   }
 
   try {
+    // Ensure user has a profile record (safety net for edge cases)
+    await supabase.rpc('ensure_user_profile')
+    
     // Validate and sanitize input data
     const validatedData = validateProfileData(formData)
     
@@ -43,6 +46,9 @@ export async function updateFinancialInfo(formData: FormData) {
   }
 
   try {
+    // Ensure user has a profile record (safety net for edge cases)
+    await supabase.rpc('ensure_user_profile')
+    
     // Validate and sanitize financial input data
     const validatedData = validateFinancialData(formData)
     

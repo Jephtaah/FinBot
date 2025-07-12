@@ -9,6 +9,14 @@ import { Profile, ProfileInsert, ProfileUpdate } from '../types/database'
 export async function getProfile(userId: string): Promise<Profile | null> {
   const supabase = await createClient()
   
+  // Ensure user has a profile record first (emergency bypass safety net)
+  try {
+    await supabase.rpc('create_user_profile_if_missing')
+  } catch (error) {
+    console.warn('Profile creation safety net failed:', error)
+    // Continue anyway - profile might already exist
+  }
+  
   const { data, error } = await supabase
     .from('profiles')
     .select('*')

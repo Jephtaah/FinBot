@@ -50,12 +50,40 @@ export async function POST(req: NextRequest) {
     
     // Parse and validate request body
     const body = await req.json();
-    const { messages, assistantId, context } = body;
+    let { messages } = body;
+    const { assistantId, context } = body;
+    
+    // Temporary fix: Filter out any empty messages before validation
+    if (messages && Array.isArray(messages)) {
+      const originalCount = messages.length;
+      messages = messages.filter(msg => msg && msg.content && msg.content.trim());
+      if (messages.length !== originalCount) {
+        console.warn(`🧹 Filtered out ${originalCount - messages.length} empty messages`);
+      }
+    }
+    
+    // Debug: Log all messages being received
+    console.log('📨 Chat API called at', new Date().toISOString(), {
+      count: messages?.length || 0,
+      assistantId,
+      hasContext: !!context,
+      messages: messages?.map((msg, idx) => ({
+        index: idx,
+        role: msg?.role,
+        content: msg?.content?.substring(0, 50) + (msg?.content?.length > 50 ? '...' : ''),
+        contentLength: msg?.content?.length || 0,
+        hasContent: !!msg?.content,
+        isEmpty: !msg?.content || !msg?.content?.trim?.()
+      }))
+    });
     
     // Validate messages
     const messagesValidation = validateChatMessages(messages);
     if (!messagesValidation.valid) {
-      console.log('Invalid messages:', messagesValidation.reason);
+      console.error('Message validation failed:', {
+        reason: messagesValidation.reason,
+        messages: messages?.map(msg => ({ role: msg?.role, content: msg?.content, length: msg?.content?.length }))
+      });
       return new Response(
         JSON.stringify({ error: messagesValidation.reason }),
         { status: 400 }
