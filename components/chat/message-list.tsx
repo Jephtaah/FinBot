@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import type { Message } from 'ai';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatChatTimestamp, formatFullTimestamp } from '@/lib/utils/time';
 
 interface MessageListProps {
   messages: Message[];
@@ -80,6 +81,14 @@ export function MessageList({ messages, isLoading }: MessageListProps) {
                 <span className="text-sm font-medium">
                   {isUser ? 'You' : 'AI Assistant'}
                 </span>
+                {message.createdAt && (
+                  <span 
+                    className="text-xs text-muted-foreground"
+                    title={formatFullTimestamp(message.createdAt)}
+                  >
+                    {formatChatTimestamp(message.createdAt)}
+                  </span>
+                )}
               </div>
               
               <div className="prose prose-sm dark:prose-invert max-w-none break-words">

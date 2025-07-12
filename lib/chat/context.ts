@@ -55,7 +55,7 @@ export function useFinancialContext() {
           .order('uploaded_at', { ascending: false }),
         supabase
           .from('profiles')
-          .select('monthly_income, monthly_expense, savings_goal, first_name, last_name')
+          .select('monthly_income, monthly_expense, savings_goal, full_name, email')
           .eq('id', user.id)
           .single(),
       ]);
@@ -65,6 +65,17 @@ export function useFinancialContext() {
       // Profile error is not critical, we can continue without it
       if (profile.error) {
         console.warn('Could not fetch user profile:', profile.error);
+        console.warn('Profile error details:', {
+          code: profile.error.code,
+          message: profile.error.message,
+          details: profile.error.details,
+          hint: profile.error.hint,
+        });
+      } else {
+        console.log('Profile query successful:', {
+          hasData: !!profile.data,
+          profileData: profile.data,
+        });
       }
 
       // Generate signed URLs for receipt images
@@ -86,8 +97,8 @@ export function useFinancialContext() {
         receipts: receiptsWithUrls,
         summary: generateFinancialSummary(transactions.data || []),
         profile: profile.data ? {
-          firstName: profile.data.first_name,
-          lastName: profile.data.last_name,
+          fullName: profile.data.full_name,
+          email: profile.data.email,
           monthlyIncome: profile.data.monthly_income,
           monthlyExpense: profile.data.monthly_expense,
           savingsGoal: profile.data.savings_goal,
@@ -99,7 +110,10 @@ export function useFinancialContext() {
         receiptsCount: result.receipts.length,
         totalSpending: result.summary.totalSpending,
         hasProfile: !!result.profile,
+        profileData: result.profile,
         monthlyIncome: result.profile?.monthlyIncome || 'Not set',
+        monthlyExpense: result.profile?.monthlyExpense || 'Not set',
+        savingsGoal: result.profile?.savingsGoal || 'Not set',
       });
       
       return result;

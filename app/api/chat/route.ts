@@ -46,14 +46,17 @@ export async function POST(req: NextRequest) {
       hasContext: !!context,
       transactionsCount: context?.transactions?.length || 0,
       summarySpending: context?.summary?.totalSpending || 0,
-      topCategories: context?.summary?.topCategories || []
+      topCategories: context?.summary?.topCategories || [],
+      hasProfile: !!context?.profile,
+      profileData: context?.profile,
     });
     
     const contextPrompt = context ? `
       Here's the user's financial context:
       
       PROFILE INFORMATION:
-      - Name: ${context.profile?.firstName || 'User'} ${context.profile?.lastName || ''}
+      - Name: ${context.profile?.fullName || 'User'}
+      - Email: ${context.profile?.email || 'Not specified'}
       - Monthly Income: ${context.profile?.monthlyIncome ? `$${context.profile.monthlyIncome}` : 'Not specified'}
       - Monthly Expense Target: ${context.profile?.monthlyExpense ? `$${context.profile.monthlyExpense}` : 'Not specified'}
       - Savings Goal: ${context.profile?.savingsGoal ? `$${context.profile.savingsGoal}` : 'Not specified'}

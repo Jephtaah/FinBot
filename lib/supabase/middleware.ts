@@ -62,9 +62,22 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // If there is a user and they're on an auth page, redirect to dashboard
+  // If there is a user and they're on an auth page, redirect based on role
   if (user && request.nextUrl.pathname.startsWith('/auth')) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    // Check if user is admin
+    try {
+      const { data: isAdmin } = await supabase.rpc('auth_user_is_admin')
+      
+      if (isAdmin) {
+        return NextResponse.redirect(new URL('/admin', request.url))
+      } else {
+        return NextResponse.redirect(new URL('/dashboard', request.url))
+      }
+    } catch (error) {
+      // If admin check fails, fallback to regular dashboard
+      console.error('Error checking admin status in middleware:', error)
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.

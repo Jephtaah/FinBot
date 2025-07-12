@@ -44,8 +44,8 @@ export interface FinancialSummary {
 }
 
 export interface FinancialProfile {
-  firstName: string | null;
-  lastName: string | null;
+  fullName: string | null;
+  email: string | null;
   monthlyIncome: number | null;
   monthlyExpense: number | null;
   savingsGoal: number | null;

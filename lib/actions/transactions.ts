@@ -28,6 +28,29 @@ async function getCurrentUserId() {
     redirect('/auth/login')
   }
   
+  // Ensure user has a profile record
+  try {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', user.id)
+      .single()
+    
+    if (!profile) {
+      // Create profile if it doesn't exist
+      await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          email: user.email || '',
+          role: 'user'
+        })
+    }
+  } catch (profileError) {
+    console.log('Profile check/creation failed:', profileError)
+    // Continue anyway - the user might still be able to access their data
+  }
+  
   return user.id
 }
 
@@ -132,7 +155,13 @@ export async function getUserTransactions(): Promise<Transaction[]> {
       .order('created_at', { ascending: false })
     
     if (error) {
-      console.error('Error fetching transactions:', error)
+      console.error('Error fetching transactions:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+        userId: userId
+      })
       return []
     }
     
@@ -241,17 +270,23 @@ export async function getTransactionStats() {
       .eq('user_id', userId)
     
     if (error) {
-      console.error('Error fetching transaction stats:', error)
+      console.error('Error fetching transaction stats:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      })
       return { totalIncome: 0, totalExpenses: 0, totalTransactions: 0 }
     }
     
     const stats = data?.reduce(
       (acc, transaction) => {
         acc.totalTransactions += 1
+        const amount = typeof transaction.amount === 'string' ? parseFloat(transaction.amount) : transaction.amount
         if (transaction.type === 'income') {
-          acc.totalIncome += transaction.amount
+          acc.totalIncome += amount
         } else {
-          acc.totalExpenses += transaction.amount
+          acc.totalExpenses += amount
         }
         return acc
       },
@@ -285,7 +320,12 @@ export async function getTransactionChartData() {
       .order('date', { ascending: true })
     
     if (error) {
-      console.error('Error fetching chart data:', error)
+      console.error('Error fetching chart data:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      })
       return []
     }
     
@@ -295,15 +335,16 @@ export async function getTransactionChartData() {
     data?.forEach((transaction) => {
       const date = new Date(transaction.date)
       const monthKey = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+      const amount = typeof transaction.amount === 'string' ? parseFloat(transaction.amount) : transaction.amount
       
       if (!monthlyData[monthKey]) {
         monthlyData[monthKey] = { month: monthKey, income: 0, expenses: 0, net: 0 }
       }
       
       if (transaction.type === 'income') {
-        monthlyData[monthKey].income += transaction.amount
+        monthlyData[monthKey].income += amount
       } else {
-        monthlyData[monthKey].expenses += transaction.amount
+        monthlyData[monthKey].expenses += amount
       }
       
       monthlyData[monthKey].net = monthlyData[monthKey].income - monthlyData[monthKey].expenses
@@ -353,7 +394,8 @@ export async function getCategoryChartData() {
     ]
     
     data?.forEach((transaction) => {
-      const { category, amount } = transaction
+      const { category } = transaction
+      const amount = typeof transaction.amount === 'string' ? parseFloat(transaction.amount) : transaction.amount
       
       if (!categoryData[category]) {
         categoryData[category] = { 

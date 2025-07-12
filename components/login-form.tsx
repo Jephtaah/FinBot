@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
+import { getDashboardUrl } from '@/lib/utils/auth'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -36,12 +37,18 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
       })
       if (error) throw error
       
-      // Get the redirect URL from the query parameters
+      // Check if user has a specific redirect request
       const params = new URLSearchParams(window.location.search)
-      const redirectTo = params.get('redirect') || '/dashboard'
+      const redirectTo = params.get('redirect')
       
-      // Decode the URL-encoded path and redirect
-      router.push(decodeURIComponent(redirectTo))
+      if (redirectTo) {
+        // If there's a specific redirect, use it
+        router.push(decodeURIComponent(redirectTo))
+      } else {
+        // Get the appropriate dashboard URL based on user role
+        const dashboardUrl = await getDashboardUrl()
+        router.push(dashboardUrl)
+      }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An error occurred')
     } finally {

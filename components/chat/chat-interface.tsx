@@ -51,7 +51,14 @@ export function ChatInterface({ assistantId }: ChatInterfaceProps) {
       id: msg.id || crypto.randomUUID(),
       role: msg.role as 'user' | 'assistant',
       content: msg.content,
+      createdAt: msg.created_at ? new Date(msg.created_at) : undefined,
     })) || [],
+    onAdd: (message) => {
+      // Add timestamp to new messages
+      if (!message.createdAt) {
+        message.createdAt = new Date();
+      }
+    },
     onFinish: async (message) => {
       console.log('AI response finished, saving assistant message:', message.content.substring(0, 100));
       try {
