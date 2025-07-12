@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
+import { getDashboardUrl } from '@/lib/utils/auth'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -35,8 +36,19 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
         password,
       })
       if (error) throw error
-      // Update this route to redirect to an authenticated route. The user already has an active session.
-      router.push('/protected')
+      
+      // Check if user has a specific redirect request
+      const params = new URLSearchParams(window.location.search)
+      const redirectTo = params.get('redirect')
+      
+      if (redirectTo) {
+        // If there's a specific redirect, use it
+        router.push(decodeURIComponent(redirectTo))
+      } else {
+        // Get the appropriate dashboard URL based on user role
+        const dashboardUrl = await getDashboardUrl()
+        router.push(dashboardUrl)
+      }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An error occurred')
     } finally {

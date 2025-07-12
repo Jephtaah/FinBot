@@ -13,15 +13,18 @@ export default async function ProtectedPage() {
     redirect('/auth/login')
   }
 
+  // Redirect authenticated users to the new dashboard
+  redirect('/dashboard')
+
   return (
     <div className="flex h-svh w-full items-center justify-center">
       <div className="text-center space-y-4">
         <p className="text-lg">
-          Hello <span className="font-semibold">{data.user.email}</span>
+          Hello <span className="font-semibold">{data.user?.email}</span>
         </p>
         <div className="flex gap-4 justify-center">
           <Button asChild>
-            <Link href="/protected/profile">
+            <Link href="/dashboard/account">
               Edit Profile
             </Link>
           </Button>
