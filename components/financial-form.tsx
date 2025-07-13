@@ -107,9 +107,9 @@ export function FinancialForm({ monthlyIncome, monthlyExpense, savingsGoal }: Fi
   }
 
   return (
-    <form action={handleSubmit} className="space-y-4">
+    <form action={handleSubmit} className="space-y-3 md:space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="monthlyIncome">Monthly Income</Label>
+        <Label htmlFor="monthlyIncome" className="text-sm font-medium">Monthly Income</Label>
         <Input 
           id="monthlyIncome" 
           name="monthlyIncome"
@@ -121,13 +121,14 @@ export function FinancialForm({ monthlyIncome, monthlyExpense, savingsGoal }: Fi
           value={formValues.monthlyIncome}
           onChange={handleInputChange}
           disabled={isLoading}
+          className="text-sm md:text-base"
         />
         <p className="text-xs text-muted-foreground">
           Maximum: $99,999,999.99
         </p>
       </div>
       <div className="space-y-2">
-        <Label htmlFor="monthlyExpenses">Expected Monthly Expenses</Label>
+        <Label htmlFor="monthlyExpenses" className="text-sm font-medium">Expected Monthly Expenses</Label>
         <Input 
           id="monthlyExpenses" 
           name="monthlyExpenses"
@@ -139,13 +140,14 @@ export function FinancialForm({ monthlyIncome, monthlyExpense, savingsGoal }: Fi
           value={formValues.monthlyExpenses}
           onChange={handleInputChange}
           disabled={isLoading}
+          className="text-sm md:text-base"
         />
         <p className="text-xs text-muted-foreground">
           Maximum: $99,999,999.99
         </p>
       </div>
       <div className="space-y-2">
-        <Label htmlFor="savingsGoal">Savings Goal</Label>
+        <Label htmlFor="savingsGoal" className="text-sm font-medium">Savings Goal</Label>
         <Input 
           id="savingsGoal" 
           name="savingsGoal"
@@ -157,6 +159,7 @@ export function FinancialForm({ monthlyIncome, monthlyExpense, savingsGoal }: Fi
           value={formValues.savingsGoal}
           onChange={handleInputChange}
           disabled={isLoading}
+          className="text-sm md:text-base"
         />
         <p className="text-xs text-muted-foreground">
           Maximum: $99,999,999.99
@@ -164,7 +167,7 @@ export function FinancialForm({ monthlyIncome, monthlyExpense, savingsGoal }: Fi
       </div>
       <Button 
         type="submit" 
-        className="w-full" 
+        className="w-full text-sm md:text-base" 
         disabled={isLoading || !isChanged}
       >
         {isLoading ? 'Updating...' : 'Update Financial Info'}

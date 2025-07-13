@@ -109,93 +109,107 @@ export default async function AdminPage() {
   ])
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
-        <p className="text-muted-foreground">
-          Overview of system-wide analytics and user activity
-        </p>
+    <div className="flex flex-1 flex-col gap-3 p-3 md:gap-4 md:p-4 lg:gap-6 lg:p-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold tracking-tight truncate">Admin Dashboard</h1>
+          <p className="text-xs md:text-sm text-muted-foreground mt-1">
+            Overview of system-wide analytics and user activity
+          </p>
+        </div>
       </div>
 
       {/* Analytics Overview Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">{" "}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="pb-1.5 md:pb-2">
+            <CardTitle className="text-xs md:text-sm font-medium flex items-center justify-between">
+              Total Users
+              <Users className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground flex-shrink-0" />
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalUsers}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="pt-0">
+            <div className="text-lg md:text-xl lg:text-2xl font-bold">{stats.totalUsers}</div>
+            <p className="text-xs text-muted-foreground mt-1">
               +{stats.recentUsers} new this week
             </p>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Transactions</CardTitle>
-            <CreditCard className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="pb-1.5 md:pb-2">
+            <CardTitle className="text-xs md:text-sm font-medium flex items-center justify-between">
+              Total Transactions
+              <CreditCard className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground flex-shrink-0" />
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalTransactions}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="pt-0">
+            <div className="text-lg md:text-xl lg:text-2xl font-bold">{stats.totalTransactions}</div>
+            <p className="text-xs text-muted-foreground mt-1">
               Across all users
             </p>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Receipts</CardTitle>
-            <Receipt className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="pb-1.5 md:pb-2">
+            <CardTitle className="text-xs md:text-sm font-medium flex items-center justify-between">
+              Total Receipts
+              <Receipt className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground flex-shrink-0" />
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalReceipts}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="pt-0">
+            <div className="text-lg md:text-xl lg:text-2xl font-bold">{stats.totalReceipts}</div>
+            <p className="text-xs text-muted-foreground mt-1">
               Receipt images uploaded
             </p>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="pb-1.5 md:pb-2">
+            <CardTitle className="text-xs md:text-sm font-medium flex items-center justify-between">
+              Total Revenue
+              <DollarSign className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground flex-shrink-0" />
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+          <CardContent className="pt-0">
+            <div className="text-lg md:text-xl lg:text-2xl font-bold text-green-600">
               ${stats.totalRevenue.toFixed(2)}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground mt-1">
               All income transactions
             </p>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Transaction</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="pb-1.5 md:pb-2">
+            <CardTitle className="text-xs md:text-sm font-medium flex items-center justify-between">
+              Avg Transaction
+              <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground flex-shrink-0" />
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          <CardContent className="pt-0">
+            <div className="text-lg md:text-xl lg:text-2xl font-bold">
               ${stats.avgTransactionAmount.toFixed(2)}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground mt-1">
               Average amount per transaction
             </p>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">System Health</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="pb-1.5 md:pb-2">
+            <CardTitle className="text-xs md:text-sm font-medium flex items-center justify-between">
+              System Health
+              <Activity className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground flex-shrink-0" />
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">Healthy</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="pt-0">
+            <div className="text-lg md:text-xl lg:text-2xl font-bold text-green-600">Healthy</div>
+            <p className="text-xs text-muted-foreground mt-1">
               All systems operational
             </p>
           </CardContent>
@@ -203,12 +217,12 @@ export default async function AdminPage() {
       </div>
 
       {/* Recent Activity */}
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-4 md:gap-6 grid-cols-1 xl:grid-cols-2">
         {/* Recent Transactions */}
         <Card>
           <CardHeader>
-            <CardTitle>Recent Transactions</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-base md:text-lg">Recent Transactions</CardTitle>
+            <CardDescription className="text-xs md:text-sm">
               Latest transactions across all users
             </CardDescription>
           </CardHeader>
@@ -248,8 +262,8 @@ export default async function AdminPage() {
         {/* Recent User Signups */}
         <Card>
           <CardHeader>
-            <CardTitle>Recent Signups</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-base md:text-lg">Recent Signups</CardTitle>
+            <CardDescription className="text-xs md:text-sm">
               New users who joined recently
             </CardDescription>
           </CardHeader>

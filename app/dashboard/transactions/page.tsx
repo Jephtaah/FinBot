@@ -15,14 +15,14 @@ export default async function TransactionsPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Transactions</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Transactions</h1>
           <p className="text-muted-foreground">
             Manage your income and expenses
           </p>
         </div>
-        <Button asChild>
+        <Button asChild className="w-full sm:w-auto">
           <Link href="/dashboard/transactions/new">
             <Plus className="mr-2 h-4 w-4" />
             Add Transaction

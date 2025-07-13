@@ -132,71 +132,72 @@ export default function ReceiptsPage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Receipts</h1>
-          <p className="text-muted-foreground">
+    <div className="flex flex-1 flex-col gap-3 p-3 md:gap-4 md:p-4 lg:gap-6 lg:p-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold tracking-tight truncate">Receipts</h1>
+          <p className="text-xs md:text-sm text-muted-foreground mt-1">
             Upload and manage your receipt images
           </p>
         </div>
-        <Button asChild>
+        <Button asChild className="self-start sm:self-auto text-xs md:text-sm">
           <Link href="/dashboard/transactions/new">
-            <Upload className="mr-2 h-4 w-4" />
-            Manual Entry
+            <Upload className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
+            <span className="hidden sm:inline">Manual Entry</span>
+            <span className="sm:hidden">Manual</span>
           </Link>
         </Button>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Receipts</CardTitle>
+          <CardHeader className="pb-1.5 md:pb-2">
+            <CardTitle className="text-xs md:text-sm font-medium">Total Receipts</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             {isLoadingStats ? (
-              <div className="h-8 w-16 bg-muted animate-pulse rounded" />
+              <div className="h-6 w-12 md:h-8 md:w-16 bg-muted animate-pulse rounded" />
             ) : (
-              <div className="text-2xl font-bold">{receiptStats.totalReceipts}</div>
+              <div className="text-lg md:text-xl lg:text-2xl font-bold">{receiptStats.totalReceipts}</div>
             )}
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground mt-1">
               Uploaded this month
             </p>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Processed</CardTitle>
+          <CardHeader className="pb-1.5 md:pb-2">
+            <CardTitle className="text-xs md:text-sm font-medium">Processed</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             {isLoadingStats ? (
-              <div className="h-8 w-16 bg-muted animate-pulse rounded" />
+              <div className="h-6 w-12 md:h-8 md:w-16 bg-muted animate-pulse rounded" />
             ) : (
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-lg md:text-xl lg:text-2xl font-bold text-green-600">
                 {receiptStats.processedReceipts}/{receiptStats.totalReceipts}
               </div>
             )}
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground mt-1">
               Successfully processed
             </p>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Value</CardTitle>
+        <Card className="sm:col-span-2 lg:col-span-1">
+          <CardHeader className="pb-1.5 md:pb-2">
+            <CardTitle className="text-xs md:text-sm font-medium">Total Value</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             {isLoadingStats ? (
-              <div className="h-8 w-16 bg-muted animate-pulse rounded" />
+              <div className="h-6 w-12 md:h-8 md:w-16 bg-muted animate-pulse rounded" />
             ) : (
-              <div className="text-2xl font-bold">
+              <div className="text-lg md:text-xl lg:text-2xl font-bold">
                 ${receiptStats.totalValue.toFixed(2)}
               </div>
             )}
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground mt-1">
               From all receipts
             </p>
           </CardContent>
@@ -206,22 +207,22 @@ export default function ReceiptsPage() {
       {/* Upload Area */}
       <Card>
         <CardHeader>
-          <CardTitle>Upload New Receipt</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-base md:text-lg">Upload New Receipt</CardTitle>
+          <CardDescription className="text-xs md:text-sm">
             Drag and drop or click to upload receipt images for automatic processing
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="max-w-md mx-auto">
+          <div className="max-w-sm md:max-w-md mx-auto">
             <SingleImageDropzone
               {...uploadProps}
               disabled={isProcessing}
             />
             
             {isProcessing && (
-              <div className="mt-4 text-center text-sm text-muted-foreground">
+              <div className="mt-3 md:mt-4 text-center text-xs md:text-sm text-muted-foreground">
                 <div className="flex items-center justify-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="h-3 w-3 md:h-4 md:w-4 animate-spin" />
                   Processing receipt with AI...
                 </div>
               </div>
@@ -234,34 +235,34 @@ export default function ReceiptsPage() {
       <Suspense fallback={<ReceiptsSkeleton />}>
         <Card>
           <CardHeader>
-            <CardTitle>Recent Receipts</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-base md:text-lg">Recent Receipts</CardTitle>
+            <CardDescription className="text-xs md:text-sm">
               Your uploaded receipts and their processing status
             </CardDescription>
           </CardHeader>
           <CardContent>
             {receiptImages.length === 0 ? (
-              <div className="text-center py-8">
-                <Receipt className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                <p className="text-muted-foreground">No receipts uploaded yet</p>
-                <p className="text-sm text-muted-foreground">
+              <div className="text-center py-6 md:py-8">
+                <Receipt className="h-8 w-8 md:h-10 md:w-10 lg:h-12 lg:w-12 mx-auto mb-3 md:mb-4 text-muted-foreground opacity-50" />
+                <p className="text-sm md:text-base text-muted-foreground">No receipts uploaded yet</p>
+                <p className="text-xs md:text-sm text-muted-foreground mt-1">
                   Upload your first receipt to get started with automatic transaction processing
                 </p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 {receiptImages.map((receiptImage) => {
                   const transaction = receiptImage.transactions
                   return (
-                    <div key={receiptImage.id} className="flex items-center justify-between rounded-lg border p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
-                          <Receipt className="h-5 w-5" aria-hidden="true" />
+                    <div key={receiptImage.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between rounded-lg border p-3 md:p-4 gap-3 sm:gap-4">
+                      <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
+                        <div className="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-lg bg-muted flex-shrink-0">
+                          <Receipt className="h-4 w-4 md:h-5 md:w-5" aria-hidden="true" />
                         </div>
-                        <div className="flex flex-col">
-                          <span className="font-medium">{receiptImage.file_name}</span>
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <span className="flex items-center gap-1">
+                        <div className="flex flex-col min-w-0 flex-1">
+                          <span className="font-medium text-sm md:text-base truncate">{receiptImage.file_name}</span>
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 md:gap-4 text-xs md:text-sm text-muted-foreground">
+                            <span className="flex items-center gap-1 flex-shrink-0">
                               <Calendar className="h-3 w-3" />
                               {new Date(receiptImage.uploaded_at).toLocaleDateString('en-US', {
                                 year: 'numeric',
@@ -271,24 +272,25 @@ export default function ReceiptsPage() {
                             </span>
                             {transaction && (
                               <>
-                                <span className="flex items-center gap-1">
+                                <span className="flex items-center gap-1 flex-shrink-0">
                                   <DollarSign className="h-3 w-3" />
                                   ${Math.abs(transaction.amount).toFixed(2)}
                                 </span>
-                                <span>• {transaction.title}</span>
-                                <span>• {transaction.category}</span>
+                                <span className="truncate">{transaction.title}</span>
+                                <span className="hidden sm:inline">•</span>
+                                <span className="truncate">{transaction.category}</span>
                               </>
                             )}
                           </div>
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-3">
-                        <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-800">
+                      <div className="flex items-center justify-between sm:justify-end gap-2 md:gap-3 flex-shrink-0">
+                        <span className="inline-flex items-center rounded-full px-2 md:px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-800">
                           Processed
                         </span>
                         {transaction && (
-                          <Button variant="outline" size="sm" asChild>
+                          <Button variant="outline" size="sm" asChild className="text-xs">
                             <Link href={`/dashboard/transactions/${transaction.slug}`}>
                               View
                             </Link>

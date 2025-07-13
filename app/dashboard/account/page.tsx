@@ -27,21 +27,21 @@ export default async function AccountPage() {
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Account Settings</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Account Settings</h1>
         <p className="text-muted-foreground">
           Manage your profile and financial preferences
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-4 md:gap-6 lg:grid-cols-2">
         {/* Profile Information */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+              <User className="h-4 w-4 md:h-5 md:w-5" />
               Profile Information
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-sm">
               Update your personal information
             </CardDescription>
           </CardHeader>
@@ -55,12 +55,12 @@ export default async function AccountPage() {
 
         {/* Financial Settings */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5" />
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+              <DollarSign className="h-4 w-4 md:h-5 md:w-5" />
               Financial Settings
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-sm">
               Configure your financial goals and preferences
             </CardDescription>
           </CardHeader>
@@ -74,13 +74,13 @@ export default async function AccountPage() {
         </Card>
 
         {/* Security & Account */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5" />
+        <Card className="lg:col-span-1">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+              <Shield className="h-4 w-4 md:h-5 md:w-5" />
               Security & Account
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-sm">
               Manage your account security
             </CardDescription>
           </CardHeader>
