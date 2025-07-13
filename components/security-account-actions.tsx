@@ -350,20 +350,20 @@ export function SecurityAccountActions() {
         if (!open) resetPasswordFields()
       }}>
         <AlertDialogTrigger asChild>
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full text-sm md:text-base">
             Change Password
           </Button>
         </AlertDialogTrigger>
-        <AlertDialogContent>
+        <AlertDialogContent className="sm:max-w-[425px] mx-4">
           <AlertDialogHeader>
-            <AlertDialogTitle>Change Your Password</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-base md:text-lg">Change Your Password</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm">
               Enter your new password below. Make sure it&apos;s secure and you remember it.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="space-y-3 md:space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="oldPassword">Current Password</Label>
+              <Label htmlFor="oldPassword" className="text-sm font-medium">Current Password</Label>
               <Input
                 id="oldPassword"
                 type="password"
@@ -376,32 +376,35 @@ export function SecurityAccountActions() {
                   }
                 }}
                 placeholder="Enter current password"
+                className="text-sm md:text-base"
               />
               {hasPasswordError && oldPassword && (
                 <p className="text-xs text-red-500">Previous password was incorrect</p>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="newPassword">New Password</Label>
+              <Label htmlFor="newPassword" className="text-sm font-medium">New Password</Label>
               <Input
                 id="newPassword"
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Enter new password"
+                className="text-sm md:text-base"
               />
               <p className="text-xs text-muted-foreground">
                 Must be at least 6 characters long
               </p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm New Password</Label>
+              <Label htmlFor="confirmPassword" className="text-sm font-medium">Confirm New Password</Label>
               <Input
                 id="confirmPassword"
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirm new password"
+                className="text-sm md:text-base"
               />
               {newPassword && confirmPassword && newPassword !== confirmPassword && (
                 <p className="text-xs text-red-500">Passwords do not match</p>
@@ -409,8 +412,10 @@ export function SecurityAccountActions() {
             </div>
             {error && <p className="text-sm text-red-500">{error}</p>}
           </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={resetPasswordFields}>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel onClick={resetPasswordFields} className="w-full sm:w-auto text-sm">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleChangePassword}
               disabled={
@@ -421,6 +426,7 @@ export function SecurityAccountActions() {
                 newPassword.length < 6 ||
                 newPassword !== confirmPassword
               }
+              className="w-full sm:w-auto text-sm"
             >
               {isLoading ? 'Changing...' : 'Change Password'}
             </AlertDialogAction>
@@ -430,22 +436,23 @@ export function SecurityAccountActions() {
       
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full text-sm md:text-base">
             Download Data
           </Button>
         </AlertDialogTrigger>
-        <AlertDialogContent>
+        <AlertDialogContent className="sm:max-w-[425px] mx-4">
           <AlertDialogHeader>
-            <AlertDialogTitle>Download Your Data</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-base md:text-lg">Download Your Data</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm">
               This will download all your transactions and financial data as a well-formatted PDF report.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel className="w-full sm:w-auto text-sm">Cancel</AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleDownloadData}
               disabled={isLoading}
+              className="w-full sm:w-auto text-sm"
             >
               {isLoading ? 'Downloading...' : 'Download'}
             </AlertDialogAction>
@@ -463,24 +470,24 @@ export function SecurityAccountActions() {
         
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="destructive" className="w-full">
+            <Button variant="destructive" className="w-full text-sm md:text-base">
               Delete Account
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent>
+          <AlertDialogContent className="sm:max-w-[425px] mx-4">
             <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-              <AlertDialogDescription>
+              <AlertDialogTitle className="text-base md:text-lg">Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription className="text-sm">
                 This action cannot be undone. This will permanently delete your account
                 and remove all your data from our servers.
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+              <AlertDialogCancel className="w-full sm:w-auto text-sm">Cancel</AlertDialogCancel>
               <AlertDialogAction 
                 onClick={handleDeleteAccount}
                 disabled={isLoading}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                className="w-full sm:w-auto text-sm bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 {isLoading ? 'Deleting...' : 'Delete Account'}
               </AlertDialogAction>
@@ -493,17 +500,17 @@ export function SecurityAccountActions() {
       
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <Button className="w-full">Logout</Button>
+          <Button className="w-full text-sm md:text-base">Logout</Button>
         </AlertDialogTrigger>
-        <AlertDialogContent>
+        <AlertDialogContent className="sm:max-w-[425px] mx-4">
           <AlertDialogHeader>
-            <AlertDialogTitle>Logout</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-base md:text-lg">Logout</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm">
               Are you sure you want to logout?
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel className="w-full sm:w-auto text-sm">Cancel</AlertDialogCancel>
             <LogoutButton />
           </AlertDialogFooter>
         </AlertDialogContent>

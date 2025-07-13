@@ -189,80 +189,92 @@ export default async function AdminTransactionsPage() {
   ])
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Transactions</h1>
-        <p className="text-muted-foreground">
-          Manage and view all user transactions
-        </p>
+    <div className="flex flex-1 flex-col gap-3 p-3 md:gap-4 md:p-4 lg:gap-6 lg:p-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold tracking-tight truncate">Transactions</h1>
+          <p className="text-xs md:text-sm text-muted-foreground mt-1">
+            Manage and view all user transactions
+          </p>
+        </div>
       </div>
 
       {/* Transaction Stats */}
-      <div className="grid gap-4 md:grid-cols-5">
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Transactions</CardTitle>
-            <CreditCard className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="pb-1.5 md:pb-2">
+            <CardTitle className="text-xs md:text-sm font-medium flex items-center justify-between">
+              Total Transactions
+              <CreditCard className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground flex-shrink-0" />
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="pt-0">
+            <div className="text-lg md:text-xl lg:text-2xl font-bold">{stats.total}</div>
+            <p className="text-xs text-muted-foreground mt-1">
               All transactions
             </p>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Income</CardTitle>
-            <TrendingUp className="h-4 w-4 text-green-600" />
+          <CardHeader className="pb-1.5 md:pb-2">
+            <CardTitle className="text-xs md:text-sm font-medium flex items-center justify-between">
+              Income
+              <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-green-600 flex-shrink-0" />
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.income}</div>
-            <div className="text-xs text-muted-foreground">
+          <CardContent className="pt-0">
+            <div className="text-lg md:text-xl lg:text-2xl font-bold text-green-600">{stats.income}</div>
+            <div className="text-xs text-muted-foreground mt-1">
               ${stats.totalIncome.toFixed(2)} total
             </div>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Expenses</CardTitle>
-            <TrendingDown className="h-4 w-4 text-red-600" />
+          <CardHeader className="pb-1.5 md:pb-2">
+            <CardTitle className="text-xs md:text-sm font-medium flex items-center justify-between">
+              Expenses
+              <TrendingDown className="h-3 w-3 md:h-4 md:w-4 text-red-600 flex-shrink-0" />
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.expense}</div>
-            <div className="text-xs text-muted-foreground">
+          <CardContent className="pt-0">
+            <div className="text-lg md:text-xl lg:text-2xl font-bold text-red-600">{stats.expense}</div>
+            <div className="text-xs text-muted-foreground mt-1">
               ${stats.totalExpenses.toFixed(2)} total
             </div>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Net Amount</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="pb-1.5 md:pb-2">
+            <CardTitle className="text-xs md:text-sm font-medium flex items-center justify-between">
+              Net Amount
+              <DollarSign className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground flex-shrink-0" />
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className={`text-2xl font-bold ${
+          <CardContent className="pt-0">
+            <div className={`text-lg md:text-xl lg:text-2xl font-bold ${
               (stats.totalIncome - stats.totalExpenses) >= 0 ? 'text-green-600' : 'text-red-600'
             }`}>
               ${Math.abs(stats.totalIncome - stats.totalExpenses).toFixed(2)}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground mt-1">
               {(stats.totalIncome - stats.totalExpenses) >= 0 ? 'Net positive' : 'Net negative'}
             </p>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Recent</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="pb-1.5 md:pb-2">
+            <CardTitle className="text-xs md:text-sm font-medium flex items-center justify-between">
+              Recent
+              <Calendar className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground flex-shrink-0" />
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.recent}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="pt-0">
+            <div className="text-lg md:text-xl lg:text-2xl font-bold">{stats.recent}</div>
+            <p className="text-xs text-muted-foreground mt-1">
               This week
             </p>
           </CardContent>
@@ -272,17 +284,17 @@ export default async function AdminTransactionsPage() {
       {/* Top Categories */}
       <Card>
         <CardHeader>
-          <CardTitle>Top Categories</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-base md:text-lg">Top Categories</CardTitle>
+          <CardDescription className="text-xs md:text-sm">
             Most frequently used transaction categories
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-2 md:grid-cols-5">
+          <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
             {stats.topCategories.map((cat) => (
-              <div key={cat.category} className="flex items-center justify-between p-2 border rounded">
-                <span className="text-sm font-medium">{cat.category}</span>
-                <Badge variant="secondary">{cat.count}</Badge>
+              <div key={cat.category} className="flex items-center justify-between p-2 md:p-3 border rounded">
+                <span className="text-xs md:text-sm font-medium truncate">{cat.category}</span>
+                <Badge variant="secondary" className="text-xs">{cat.count}</Badge>
               </div>
             ))}
           </div>
@@ -292,16 +304,16 @@ export default async function AdminTransactionsPage() {
       {/* Transactions Table */}
       <Card>
         <CardHeader>
-          <CardTitle>All Transactions</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-base md:text-lg">All Transactions</CardTitle>
+          <CardDescription className="text-xs md:text-sm">
             Complete list of all user transactions
           </CardDescription>
         </CardHeader>
         <CardContent>
           {transactions.length === 0 ? (
-            <div className="text-center py-8">
-              <CreditCard className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-              <p className="text-muted-foreground">No transactions found</p>
+            <div className="text-center py-6 md:py-8">
+              <CreditCard className="h-8 w-8 md:h-10 md:w-10 lg:h-12 lg:w-12 mx-auto mb-3 md:mb-4 text-muted-foreground opacity-50" />
+              <p className="text-sm md:text-base text-muted-foreground">No transactions found</p>
             </div>
           ) : (
             <div className="overflow-x-auto">

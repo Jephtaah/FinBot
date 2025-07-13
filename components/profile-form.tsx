@@ -47,9 +47,9 @@ export function ProfileForm({ defaultValue, userEmail }: ProfileFormProps) {
   }
 
   return (
-    <form action={handleSubmit} className="space-y-4">
+    <form action={handleSubmit} className="space-y-3 md:space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="fullName">Full Name</Label>
+        <Label htmlFor="fullName" className="text-sm font-medium">Full Name</Label>
         <Input 
           id="fullName" 
           name="fullName"
@@ -57,16 +57,17 @@ export function ProfileForm({ defaultValue, userEmail }: ProfileFormProps) {
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
           disabled={isLoading}
+          className="text-sm md:text-base"
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email" className="text-sm font-medium">Email</Label>
         <Input 
           id="email" 
           type="email" 
           value={userEmail}
           disabled
-          className="bg-muted"
+          className="bg-muted text-sm md:text-base"
         />
         <p className="text-xs text-muted-foreground">
           Email cannot be changed
@@ -74,7 +75,7 @@ export function ProfileForm({ defaultValue, userEmail }: ProfileFormProps) {
       </div>
       <Button 
         type="submit" 
-        className="w-full" 
+        className="w-full text-sm md:text-base" 
         disabled={isLoading || !isChanged}
       >
         {isLoading ? 'Saving...' : 'Save Changes'}

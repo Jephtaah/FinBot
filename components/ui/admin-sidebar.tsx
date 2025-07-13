@@ -7,14 +7,12 @@ import {
   Receipt, 
   CreditCard, 
   Users,
-  Menu,
   LogOut,
   Shield
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { LogoutButton } from "@/components/logout-button"
+import { MobileHeader } from "@/components/ui/mobile-header"
 
 const navigation = [
   {
@@ -104,22 +102,10 @@ export function AdminSidebar() {
         <SidebarContent />
       </div>
 
-      {/* Mobile sidebar */}
-      <Sheet>
-        <SheetTrigger asChild>
-          <Button
-            variant="outline"
-            size="icon"
-            className="shrink-0 md:hidden fixed top-4 left-4 z-50 bg-background/80 backdrop-blur-sm"
-          >
-            <Menu className="h-5 w-5" />
-            <span className="sr-only">Toggle navigation menu</span>
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="flex flex-col p-0 w-[280px]">
-          <SidebarContent />
-        </SheetContent>
-      </Sheet>
+      {/* Mobile header with sidebar */}
+      <MobileHeader type="admin">
+        <SidebarContent />
+      </MobileHeader>
     </>
   )
 }

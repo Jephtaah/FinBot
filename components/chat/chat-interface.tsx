@@ -12,7 +12,7 @@ import { TrendingUp, TrendingDown, MoreVertical, ArrowLeft } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query';
 import { useUser } from '@/hooks/use-user';
 import type { AssistantId } from '@/types/chat';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import {
@@ -331,7 +331,7 @@ export function ChatInterface({ assistantId }: ChatInterfaceProps) {
   // Show loading state while user or context is loading
   if (userLoading || contextLoading) {
     return (
-      <div className="flex flex-1 flex-col gap-6 p-4 md:gap-8 md:p-8">
+      <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <div className="flex items-center">
           <Button variant="outline" size="sm" asChild>
             <Link href="/dashboard/chat">
@@ -340,8 +340,8 @@ export function ChatInterface({ assistantId }: ChatInterfaceProps) {
             </Link>
           </Button>
         </div>
-        <Card className="flex flex-col h-[calc(100vh-12rem)] border rounded-lg">
-          <CardContent className="flex-1 flex items-center justify-center">
+        <Card className="flex flex-col h-[calc(100vh-12rem)] border border-border/50 rounded-lg shadow-none">
+          <CardContent className="flex-1 flex items-center justify-center p-8">
             <div className="text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
               <p className="text-muted-foreground">Loading your financial data...</p>
@@ -355,7 +355,7 @@ export function ChatInterface({ assistantId }: ChatInterfaceProps) {
   // Show error if user is not authenticated
   if (!user) {
     return (
-      <div className="flex flex-1 flex-col gap-6 p-4 md:gap-8 md:p-8">
+      <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <div className="flex items-center">
           <Button variant="outline" size="sm" asChild>
             <Link href="/dashboard/chat">
@@ -364,8 +364,8 @@ export function ChatInterface({ assistantId }: ChatInterfaceProps) {
             </Link>
           </Button>
         </div>
-        <Card className="flex flex-col h-[calc(100vh-12rem)] border rounded-lg">
-          <CardContent className="flex-1 flex items-center justify-center">
+        <Card className="flex flex-col h-[calc(100vh-12rem)] border border-border/50 rounded-lg shadow-none">
+          <CardContent className="flex-1 flex items-center justify-center p-8">
             <Alert className="max-w-md">
               <AlertDescription>
                 Please log in to use the AI assistant.
@@ -378,7 +378,7 @@ export function ChatInterface({ assistantId }: ChatInterfaceProps) {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-6 p-4 md:gap-8 md:p-8">
+    <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       {/* Top Navigation - Back Button */}
       <div className="flex items-center">
         <Button variant="outline" size="sm" asChild>
@@ -389,80 +389,87 @@ export function ChatInterface({ assistantId }: ChatInterfaceProps) {
         </Button>
       </div>
 
-      <Card className="flex flex-col h-[calc(100vh-12rem)] border rounded-lg">
-        <CardHeader className="border-b px-6 py-3 flex-shrink-0">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary/80 to-primary">
-                <Icon className="h-5 w-5 text-primary-foreground" />
+      {/* Single Responsive Layout */}
+      <div className="flex-1 min-h-0">
+        {/* Responsive Container - Card on desktop, no card on mobile */}
+        <div className="flex flex-col h-[calc(100vh-12rem)] overflow-hidden md:border md:border-border/50 md:rounded-lg md:bg-card md:shadow-none">
+          {/* Assistant Header */}
+          <div className="border-b border-border/50 md:bg-background/95 md:backdrop-blur px-0 py-4 md:px-8 md:py-6 flex-shrink-0">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3 md:gap-2 min-w-0 flex-1">
+                <div className="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary/80 to-primary flex-shrink-0">
+                  <Icon className="h-4 w-4 md:h-5 md:w-5 text-primary-foreground" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-base md:text-lg font-semibold tracking-tight truncate">{assistant.name}</h1>
+                  <p className="text-sm md:text-sm text-muted-foreground truncate">{assistant.description}</p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-lg font-semibold tracking-tight">{assistant.name}</h1>
-                <p className="text-sm text-muted-foreground">{assistant.description}</p>
+              <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <MoreVertical className="h-4 w-4" />
+                    <span className="sr-only">More options</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DeleteChatDialog onConfirm={handleClearChat}>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                      Clear chat
+                    </DropdownMenuItem>
+                  </DeleteChatDialog>
+                  <ExportChatDialog onConfirm={handleExportChat}>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                      Export chat
+                    </DropdownMenuItem>
+                  </ExportChatDialog>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+
+          {/* Messages Area */}
+          <div className="flex-1 overflow-hidden">
+            <ScrollArea className="h-full" ref={scrollRef}>
+              <div className="px-0 py-4 md:px-8 md:py-6">
+                {error && (
+                  <Alert variant="destructive" className="mb-4">
+                    <AlertDescription className="text-sm">
+                      {error.message || 'Failed to send message'}
+                    </AlertDescription>
+                  </Alert>
+                )}
+                <MessageList messages={messages} isLoading={isHistoryLoading} />
               </div>
-            </div>
-            <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <MoreVertical className="h-4 w-4" />
-                  <span className="sr-only">More options</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DeleteChatDialog onConfirm={handleClearChat}>
-                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                    Clear chat
-                  </DropdownMenuItem>
-                </DeleteChatDialog>
-                <ExportChatDialog onConfirm={handleExportChat}>
-                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                    Export chat
-                  </DropdownMenuItem>
-                </ExportChatDialog>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            </ScrollArea>
           </div>
-        </CardHeader>
 
-        <CardContent className="flex-1 p-0 overflow-hidden">
-          <ScrollArea className="h-full" ref={scrollRef}>
-            <div className="flex-1 px-4 py-4 md:px-6">
-              {error && (
-                <Alert variant="destructive" className="mb-4">
-                  <AlertDescription>
-                    {error.message || 'Failed to send message'}
-                  </AlertDescription>
-                </Alert>
-              )}
-              <MessageList messages={messages} isLoading={isHistoryLoading} />
+          {/* Context Warning */}
+          {!context && (
+            <div className="border-t border-border/50 bg-yellow-50 dark:bg-yellow-900/20 px-0 py-4 md:px-8 md:py-4 flex-shrink-0">
+              <Alert className="border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20">
+                <AlertDescription className="text-yellow-800 dark:text-yellow-200 text-sm leading-relaxed">
+                  ⚠️ Limited financial data available. The AI may provide general advice instead of personalized insights.{' '}
+                  <Link href="/dashboard/transactions" className="underline font-medium">
+                    Add transactions to get better assistance.
+                  </Link>
+                </AlertDescription>
+              </Alert>
             </div>
-          </ScrollArea>
-        </CardContent>
+          )}
 
-        {/* Context Warning */}
-        {!context && (
-          <div className="px-4 py-2 border-t bg-yellow-50 dark:bg-yellow-900/20">
-            <Alert className="border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20">
-              <AlertDescription className="text-yellow-800 dark:text-yellow-200 text-sm">
-                ⚠️ Limited financial data available. The AI may provide general advice instead of personalized insights. 
-                <Link href="/dashboard/transactions" className="underline ml-1">
-                  Add transactions to get better assistance.
-                </Link>
-              </AlertDescription>
-            </Alert>
+          {/* Input Area */}
+          <div className="border-t border-border/50 md:bg-background/95 md:backdrop-blur px-0 py-4 md:px-8 md:py-6 flex-shrink-0">
+            <ChatInput
+              value={input}
+              onChange={(value) => handleInputChange({ target: { value } } as React.ChangeEvent<HTMLInputElement>)}
+              onSubmit={handleChatSubmit}
+              isLoading={isLoading}
+              placeholder={`Ask ${assistant.name} anything...`}
+            />
           </div>
-        )}
-
-        <CardFooter className="px-4 py-3 md:px-6 border-t mt-auto">
-          <ChatInput
-            value={input}
-            onChange={(value) => handleInputChange({ target: { value } } as React.ChangeEvent<HTMLInputElement>)}
-            onSubmit={handleChatSubmit}
-            isLoading={isLoading}
-            placeholder={`Ask ${assistant.name} anything about your finances...`}
-          />
-        </CardFooter>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

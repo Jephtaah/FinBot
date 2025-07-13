@@ -37,76 +37,62 @@ async function getAllReceipts(): Promise<ReceiptData[]> {
   const supabase = await createClient()
   
   try {
-    // First try the complex query
-    const { data: receipts, error } = await supabase
+    // Use simple query to avoid join issues
+    const { data: simpleReceipts, error: simpleError } = await supabase
       .from('receipt_images')
-      .select(`
-        *,
-        transactions!inner (
-          title,
-          amount,
-          type,
-          date
-        ),
-        profiles!inner (
-          email,
-          full_name
-        )
-      `)
+      .select('*')
       .order('uploaded_at', { ascending: false })
     
-    if (error) {
-      console.error('Error fetching receipts with joins:', {
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        code: error.code
-      })
-      
-      // Fallback: try simpler query without joins
-      const { data: simpleReceipts, error: simpleError } = await supabase
-        .from('receipt_images')
-        .select('*')
-        .order('uploaded_at', { ascending: false })
-      
-      if (simpleError) {
-        console.error('Error fetching simple receipts:', simpleError)
-        return []
-      }
-      
-      // Get additional data separately
-      const receiptsWithData = await Promise.all(
-        (simpleReceipts || []).map(async (receipt) => {
-          // Get transaction data
-          const { data: transaction } = await supabase
+    if (simpleError) {
+      console.error('Error fetching receipts:', simpleError)
+      return []
+    }
+    
+    if (!simpleReceipts || simpleReceipts.length === 0) {
+      return []
+    }
+    
+    // Get additional data separately for better reliability
+    const receiptsWithData = await Promise.all(
+      simpleReceipts.map(async (receipt) => {
+        let transaction = null
+        let user = null
+        
+        // Get transaction data if transaction_id exists
+        if (receipt.transaction_id) {
+          const { data: transactionData, error: transactionError } = await supabase
             .from('transactions')
             .select('title, amount, type, date')
             .eq('id', receipt.transaction_id)
             .single()
           
-          // Get user data
-          const { data: user } = await supabase
+          if (!transactionError) {
+            transaction = transactionData
+          }
+        }
+        
+        // Get user data if user_id exists
+        if (receipt.user_id) {
+          const { data: userData, error: userError } = await supabase
             .from('profiles')
             .select('email, full_name')
             .eq('id', receipt.user_id)
             .single()
           
-          return {
-            ...receipt,
-            transaction,
-            user
+          if (!userError) {
+            user = userData
           }
-        })
-      )
-      
-      return receiptsWithData
-    }
+        }
+        
+        return {
+          ...receipt,
+          transaction,
+          user
+        }
+      })
+    )
     
-    return receipts?.map(receipt => ({
-      ...receipt,
-      transaction: receipt.transactions,
-      user: receipt.profiles
-    })) || []
+    return receiptsWithData
   } catch (err) {
     console.error('Error in getAllReceipts:', err)
     return []
@@ -186,49 +172,57 @@ export default async function AdminReceiptsPage() {
   ])
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Receipts</h1>
-        <p className="text-muted-foreground">
-          Manage and view all uploaded receipt images
-        </p>
+    <div className="flex flex-1 flex-col gap-3 p-3 md:gap-4 md:p-4 lg:gap-6 lg:p-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold tracking-tight truncate">Receipts</h1>
+          <p className="text-xs md:text-sm text-muted-foreground mt-1">
+            Manage and view all uploaded receipt images
+          </p>
+        </div>
       </div>
 
       {/* Receipt Stats */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Receipts</CardTitle>
-            <Receipt className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="pb-1.5 md:pb-2">
+            <CardTitle className="text-xs md:text-sm font-medium flex items-center justify-between">
+              Total Receipts
+              <Receipt className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground flex-shrink-0" />
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="pt-0">
+            <div className="text-lg md:text-xl lg:text-2xl font-bold">{stats.total}</div>
+            <p className="text-xs text-muted-foreground mt-1">
               All uploaded receipts
             </p>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Storage Used</CardTitle>
-            <HardDrive className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="pb-1.5 md:pb-2">
+            <CardTitle className="text-xs md:text-sm font-medium flex items-center justify-between">
+              Storage Used
+              <HardDrive className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground flex-shrink-0" />
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatFileSize(stats.totalSize)}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="pt-0">
+            <div className="text-lg md:text-xl lg:text-2xl font-bold">{formatFileSize(stats.totalSize)}</div>
+            <p className="text-xs text-muted-foreground mt-1">
               Total storage consumed
             </p>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">File Types</CardTitle>
-            <FileImage className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="pb-1.5 md:pb-2">
+            <CardTitle className="text-xs md:text-sm font-medium flex items-center justify-between">
+              File Types
+              <FileImage className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground flex-shrink-0" />
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-sm space-y-1">
+          <CardContent className="pt-0">
+            <div className="text-xs md:text-sm space-y-1">
               <div>Images: {stats.images}</div>
               <div>PDFs: {stats.pdfs}</div>
             </div>
@@ -236,13 +230,15 @@ export default async function AdminReceiptsPage() {
         </Card>
         
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Recent Uploads</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="pb-1.5 md:pb-2">
+            <CardTitle className="text-xs md:text-sm font-medium flex items-center justify-between">
+              Recent Uploads
+              <Calendar className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground flex-shrink-0" />
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.recent}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="pt-0">
+            <div className="text-lg md:text-xl lg:text-2xl font-bold">{stats.recent}</div>
+            <p className="text-xs text-muted-foreground mt-1">
               Uploaded this week
             </p>
           </CardContent>
@@ -252,16 +248,16 @@ export default async function AdminReceiptsPage() {
       {/* Receipts Table */}
       <Card>
         <CardHeader>
-          <CardTitle>All Receipts</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-base md:text-lg">All Receipts</CardTitle>
+          <CardDescription className="text-xs md:text-sm">
             Complete list of uploaded receipt images with transaction details
           </CardDescription>
         </CardHeader>
         <CardContent>
           {receipts.length === 0 ? (
-            <div className="text-center py-8">
-              <Receipt className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-              <p className="text-muted-foreground">No receipts found</p>
+            <div className="text-center py-6 md:py-8">
+              <Receipt className="h-8 w-8 md:h-10 md:w-10 lg:h-12 lg:w-12 mx-auto mb-3 md:mb-4 text-muted-foreground opacity-50" />
+              <p className="text-sm md:text-base text-muted-foreground">No receipts found</p>
             </div>
           ) : (
             <div className="overflow-x-auto">

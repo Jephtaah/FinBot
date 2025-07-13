@@ -111,50 +111,58 @@ export default async function AdminUsersPage() {
   ])
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Users</h1>
-        <p className="text-muted-foreground">
-          Manage and view all registered users
-        </p>
+    <div className="flex flex-1 flex-col gap-3 p-3 md:gap-4 md:p-4 lg:gap-6 lg:p-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold tracking-tight truncate">Users</h1>
+          <p className="text-xs md:text-sm text-muted-foreground mt-1">
+            Manage and view all registered users
+          </p>
+        </div>
       </div>
 
       {/* User Stats */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="pb-1.5 md:pb-2">
+            <CardTitle className="text-xs md:text-sm font-medium flex items-center justify-between">
+              Total Users
+              <Users className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground flex-shrink-0" />
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="pt-0">
+            <div className="text-lg md:text-xl lg:text-2xl font-bold">{stats.total}</div>
+            <p className="text-xs text-muted-foreground mt-1">
               All registered users
             </p>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="pb-1.5 md:pb-2">
+            <CardTitle className="text-xs md:text-sm font-medium flex items-center justify-between">
+              Active Users
+              <Activity className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground flex-shrink-0" />
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.active}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="pt-0">
+            <div className="text-lg md:text-xl lg:text-2xl font-bold">{stats.active}</div>
+            <p className="text-xs text-muted-foreground mt-1">
               Active in last 30 days
             </p>
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">New Users</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="pb-1.5 md:pb-2">
+            <CardTitle className="text-xs md:text-sm font-medium flex items-center justify-between">
+              New Users
+              <Calendar className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground flex-shrink-0" />
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.new}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="pt-0">
+            <div className="text-lg md:text-xl lg:text-2xl font-bold">{stats.new}</div>
+            <p className="text-xs text-muted-foreground mt-1">
               Joined this week
             </p>
           </CardContent>
@@ -164,16 +172,16 @@ export default async function AdminUsersPage() {
       {/* Users Table */}
       <Card>
         <CardHeader>
-          <CardTitle>All Users</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-base md:text-lg">All Users</CardTitle>
+          <CardDescription className="text-xs md:text-sm">
             Complete list of registered users with their profile and transaction data
           </CardDescription>
         </CardHeader>
         <CardContent>
           {users.length === 0 ? (
-            <div className="text-center py-8">
-              <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-              <p className="text-muted-foreground">No users found</p>
+            <div className="text-center py-6 md:py-8">
+              <Users className="h-8 w-8 md:h-10 md:w-10 lg:h-12 lg:w-12 mx-auto mb-3 md:mb-4 text-muted-foreground opacity-50" />
+              <p className="text-sm md:text-base text-muted-foreground">No users found</p>
             </div>
           ) : (
             <div className="overflow-x-auto">

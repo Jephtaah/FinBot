@@ -21,25 +21,25 @@ const APP_PERKS = [
 
 export function AccountActivityCard() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Activity className="h-5 w-5" />
+    <Card className="lg:col-span-1">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+          <Activity className="h-4 w-4 md:h-5 md:w-5" />
           App Highlights
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-sm">
           Your premium features and benefits
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-6">
-          <div className="grid gap-4">
+        <div className="space-y-4 md:space-y-6">
+          <div className="grid gap-3 md:gap-4">
             {APP_PERKS.map((perk, index) => (
               <div key={index} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                <div className="mt-1">{perk.icon}</div>
-                <div>
-                  <h5 className="font-medium">{perk.title}</h5>
-                  <p className="text-sm text-muted-foreground">{perk.description}</p>
+                <div className="mt-0.5 md:mt-1 flex-shrink-0">{perk.icon}</div>
+                <div className="min-w-0 flex-1">
+                  <h5 className="font-medium text-sm md:text-base">{perk.title}</h5>
+                  <p className="text-xs md:text-sm text-muted-foreground">{perk.description}</p>
                 </div>
               </div>
             ))}
